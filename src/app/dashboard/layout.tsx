@@ -4,7 +4,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 export default function DashboardLayout({
@@ -19,6 +19,7 @@ export default function DashboardLayout({
   const [elever, setElever] = useState<any[]>([])
   const [loadingElever, setLoadingElever] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const initialBodyOverflow = useRef<string | null>(null)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -70,6 +71,26 @@ export default function DashboardLayout({
     setIsMobileMenuOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    const { body } = document
+
+    if (initialBodyOverflow.current === null) {
+      initialBodyOverflow.current = body.style.overflow || ''
+    }
+
+    if (isMobileMenuOpen) {
+      body.style.overflow = 'hidden'
+    } else {
+      body.style.overflow = initialBodyOverflow.current
+    }
+
+    return () => {
+      body.style.overflow = initialBodyOverflow.current || ''
+    }
+  }, [isMobileMenuOpen])
+
   if (status === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -107,6 +128,7 @@ export default function DashboardLayout({
       />
 
       <aside
+        id="dashboard-sidebar"
         className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:relative md:flex md:w-64 md:translate-x-0 md:shadow-none ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="flex h-full w-full flex-col">
@@ -224,6 +246,7 @@ export default function DashboardLayout({
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Öppna meny"
             aria-expanded={isMobileMenuOpen}
+            aria-controls="dashboard-sidebar"
           >
             ☰
           </button>
