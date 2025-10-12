@@ -40,19 +40,13 @@ export default function DashboardPage() {
   const fetchAdminMessage = async () => {
     try {
       setLoadingMessage(true)
-      
-      // Hämta admin-meddelanden från Airtable
-      // Vi antar att det finns en tabell som heter "Admin_Meddelanden" eller liknande
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Admin_Meddelanden?maxRecords=1&sort%5B0%5D%5Bfield%5D=Datum&sort%5B0%5D%5Bdirection%5D=desc`, {
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-        },
-      })
-      
+
+      const response = await fetch('/api/admin-message')
+
       if (response.ok) {
         const data = await response.json()
-        if (data.records && data.records.length > 0) {
-          setAdminMessage(data.records[0].fields)
+        if (data?.fields) {
+          setAdminMessage(data.fields)
         }
       }
     } catch (error) {
@@ -70,28 +64,14 @@ export default function DashboardPage() {
   const fetchStudents = async () => {
     try {
       // Hämta alla elever för namn-lookup
-      let allRecords: any[] = []
-      let offset = ''
-      
-      do {
-        const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev${offset ? `?offset=${offset}` : ''}`
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          allRecords = allRecords.concat(data.records)
-          offset = data.offset || ''
-        } else {
-          break
-        }
-      } while (offset)
-      
-      setAllStudents(allRecords)
+      const response = await fetch('/api/students?scope=assigned')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch students')
+      }
+
+      const data = await response.json()
+      setAllStudents(data.records || [])
     } catch (error) {
       console.error('Error fetching students:', error)
     }
@@ -105,48 +85,20 @@ export default function DashboardPage() {
   const fetchAllLektioner = async () => {
     try {
       setLoadingLektioner(true)
-      
+
       console.log('Hämtar alla lektioner från Airtable...')
-      
-      // Hämta alla lektioner från Airtable
-      let allLektionerFromAPI: any[] = []
-      let offset = ''
-      
-      do {
-        const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lektioner${offset ? `?offset=${offset}` : ''}`
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          allLektionerFromAPI = allLektionerFromAPI.concat(data.records)
-          offset = data.offset || ''
-        } else {
-          break
-        }
-      } while (offset)
-      
-      console.log('Alla lektioner från Airtable:', allLektionerFromAPI.length)
-      
-      // Filtrera mina lektioner och cacha dem
-      const myLektioner = allLektionerFromAPI.filter((record: any) => {
-        const teacherField = record.fields.Lärare
-        
-        // Kontrollera att det är min lektion
-        const isMyLesson = Array.isArray(teacherField) 
-          ? teacherField.includes(session?.user?.teacherId)
-          : teacherField === session?.user?.teacherId
-        
-        return isMyLesson
-      })
-      
-      console.log('Mina alla lektioner (cachade):', myLektioner.length)
-      
-      setAllLektioner(myLektioner)
+
+      const response = await fetch('/api/lessons')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch lessons')
+      }
+
+      const data = await response.json()
+
+      console.log('Mina alla lektioner (cachade):', (data.records || []).length)
+
+      setAllLektioner(data.records || [])
       
     } catch (error) {
       console.error('Error fetching alla lektioner:', error)
@@ -248,10 +200,9 @@ export default function DashboardPage() {
 
   const updateLessonStatus = async (lessonId: string, updates: any) => {
     try {
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lektioner/${lessonId}`, {
+      const response = await fetch(`/api/lessons/${lessonId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

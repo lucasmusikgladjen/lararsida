@@ -32,43 +32,26 @@ export default function DashboardLayout({
   const fetchElever = async () => {
   try {
     setLoadingElever(true)
-    
-    let allRecords: any[] = []
-    let offset = ''
-    
-    // Loopa tills vi har alla elever
-    do {
-      const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev${offset ? `?offset=${offset}` : ''}`
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-        },
+
+    const response = await fetch('/api/students?scope=assigned')
+
+    if (!response.ok) {
+      throw new Error('Kunde inte hämta elever')
+    }
+
+    const data = await response.json()
+
+    const myStudents = (data.records || [])
+      .filter((record: any) => {
+        const teacherRecordId = record.fields?.LärareRecordID
+
+        if (Array.isArray(teacherRecordId)) {
+          return teacherRecordId.includes(session?.user?.teacherId)
+        }
+
+        return teacherRecordId === session?.user?.teacherId
       })
-      
-      if (!response.ok) {
-        throw new Error('Kunde inte hämta elever')
-      }
-      
-      const data = await response.json()
-      allRecords = allRecords.concat(data.records)
-      offset = data.offset || ''
-      
-    } while (offset)
-    
-    
-   // Filtrera elever som har denna lärare med LärareRecordID
-const myStudents = allRecords.filter((record: any) => {
-  const teacherRecordId = record.fields.LärareRecordID
-  
-  // Hantera både array och string format
-  if (Array.isArray(teacherRecordId)) {
-    return teacherRecordId.includes(session?.user?.teacherId)
-  } else {
-    return teacherRecordId === session?.user?.teacherId
-  }
-})
-        
+
     // Formatera data
     const formattedStudents = myStudents.map((record: any) => ({
       id: record.id,
