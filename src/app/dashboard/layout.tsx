@@ -18,78 +18,63 @@ export default function DashboardLayout({
   const [isEleversOpen, setIsEleversOpen] = useState(true)
   const [elever, setElever] = useState<any[]>([])
   const [loadingElever, setLoadingElever] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
     if (!session) router.push('/login')
-    
-    // Hämta elever när session är laddad
+
     if (session?.user?.teacherId) {
       fetchElever()
     }
   }, [session, status, router])
 
   const fetchElever = async () => {
-  try {
-    setLoadingElever(true)
-    
-    let allRecords: any[] = []
-    let offset = ''
-    
-    // Loopa tills vi har alla elever
-    do {
-      const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev${offset ? `?offset=${offset}` : ''}`
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-        },
-      })
-      
+    try {
+      setLoadingElever(true)
+
+      const response = await fetch('/api/students?scope=assigned')
+
       if (!response.ok) {
         throw new Error('Kunde inte hämta elever')
       }
-      
+
       const data = await response.json()
-      allRecords = allRecords.concat(data.records)
-      offset = data.offset || ''
-      
-    } while (offset)
-    
-    
-   // Filtrera elever som har denna lärare med LärareRecordID
-const myStudents = allRecords.filter((record: any) => {
-  const teacherRecordId = record.fields.LärareRecordID
-  
-  // Hantera både array och string format
-  if (Array.isArray(teacherRecordId)) {
-    return teacherRecordId.includes(session?.user?.teacherId)
-  } else {
-    return teacherRecordId === session?.user?.teacherId
+
+      const myStudents = (data.records || []).filter((record: any) => {
+        const teacherRecordId = record.fields?.LärareRecordID
+
+        if (Array.isArray(teacherRecordId)) {
+          return teacherRecordId.includes(session?.user?.teacherId)
+        }
+
+        return teacherRecordId === session?.user?.teacherId
+      })
+
+      const formattedStudents = myStudents.map((record: any) => ({
+        id: record.id,
+        namn: record.fields.Namn || 'Okänt namn',
+        Födelseår: record.fields.Födelseår || null,
+        instrument: record.fields.Instrument || 'Okänt instrument',
+      }))
+
+      setElever(formattedStudents)
+    } catch (error) {
+      console.error('Error fetching students:', error)
+    } finally {
+      setLoadingElever(false)
+    }
   }
-})
-        
-    // Formatera data
-    const formattedStudents = myStudents.map((record: any) => ({
-      id: record.id,
-      namn: record.fields.Namn || 'Okänt namn',
-      Födelseår: record.fields.Födelseår || null,
-      instrument: record.fields.Instrument || 'Okänt instrument',
-    }))
-    
-    setElever(formattedStudents)
-  } catch (error) {
-    console.error('Error fetching students:', error)
-  } finally {
-    setLoadingElever(false)
-  }
-}
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="mt-2 text-gray-600">Laddar...</p>
         </div>
       </div>
@@ -102,136 +87,152 @@ const myStudents = allRecords.filter((record: any) => {
     await signOut({ callbackUrl: '/login' })
   }
 
-  // Beräkna ålder från födelseår
   const calculateAge = (birthYear: number) => {
     const currentYear = new Date().getFullYear()
     return currentYear - birthYear
   }
 
   const isActivePage = (path: string) => {
-    return pathname === path ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-600 hover:bg-gray-50'
+    return pathname === path
+      ? 'border-r-2 border-blue-500 bg-blue-100 text-blue-700'
+      : 'text-gray-600 hover:bg-gray-50'
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg flex flex-col">
-        {/* User Info */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-medium text-sm">
-                {session.user?.name?.[0] || session.user?.email?.[0] || '?'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {session.user?.name || 'Lärare'}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                {session.user?.email}
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="flex min-h-screen bg-gray-100">
+      <div
+        className={`fixed inset-0 z-30 bg-black/40 transition-opacity duration-200 ease-in-out md:hidden ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'pointer-events-none opacity-0'}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
 
-        {/* Navigation */}
-        <nav className="flex-1 py-4">
-          <div className="px-3">
-            {/* Dashboard */}
-            <Link
-              href="/dashboard"
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 ${isActivePage('/dashboard')}`}
-            >
-              📊 <span className="ml-3">Dashboard</span>
-            </Link>
-
-            {/* Mina elever */}
-            <div className="mb-1">
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:relative md:flex md:w-64 md:translate-x-0 md:shadow-none ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="flex h-full w-full flex-col">
+          <div className="border-b border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500">
+                  <span className="text-sm font-medium text-white">
+                    {session.user?.name?.[0] || session.user?.email?.[0] || '?'}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900">
+                    {session.user?.name || 'Lärare'}
+                  </p>
+                  <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
+                </div>
+              </div>
               <button
-                onClick={() => setIsEleversOpen(!isEleversOpen)}
-                className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50"
+                type="button"
+                className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:hidden"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Stäng meny"
               >
-                <div className="flex items-center">
-                  👥 <span className="ml-3">Mina elever</span>
-                </div>
-                <span className="text-gray-400">
-                  {isEleversOpen ? '▼' : '▶'}
-                </span>
+                ✕
               </button>
-              
-              {isEleversOpen && (
-                <div className="ml-8 mt-1 space-y-1">
-                  {loadingElever ? (
-                    <div className="px-3 py-2 text-xs text-gray-400">
-                      Laddar elever...
-                    </div>
-                  ) : elever.length > 0 ? (
-                    elever.map((elev) => (
-                      <Link
-                        key={elev.id}
-                        href={`/dashboard/elev/${elev.id}`}
-                        className={`flex items-center px-3 py-2 text-sm rounded-md ${isActivePage(`/dashboard/elev/${elev.id}`)}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate">{elev.namn}</p>
-                          <p className="text-xs text-gray-400">
-                            {elev.Födelseår ? calculateAge(elev.Födelseår) : '?'} år, {elev.instrument}
-                          </p>
-                        </div>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="px-3 py-2 text-xs text-gray-400">
-                      Inga elever tilldelade än
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-
-            {/* Alla lektioner */}
-            <Link
-              href="/dashboard/lektioner"
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 ${isActivePage('/dashboard/lektioner')}`}
-            >
-              📅 <span className="ml-3">Alla lektioner</span>
-            </Link>
-
-            {/* Elevkarta */}
-            <Link
-              href="/dashboard/elevkarta"
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 ${isActivePage('/dashboard/elevkarta')}`}
-            >
-              🗺️ <span className="ml-3">Elevkarta</span>
-            </Link>
-
-            {/* Min profil */}
-            <Link
-              href="/dashboard/profil"
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 ${isActivePage('/dashboard/profil')}`}
-            >
-              👤 <span className="ml-3">Min profil</span>
-            </Link>
           </div>
-        </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-50"
-          >
-            🚪 <span className="ml-3">Logga ut</span>
-          </button>
+          <nav className="flex-1 py-4">
+            <div className="px-3">
+              <Link
+                href="/dashboard"
+                className={`mb-1 flex items-center rounded-md px-3 py-2 text-sm font-medium ${isActivePage('/dashboard')}`}
+              >
+                📊 <span className="ml-3">Dashboard</span>
+              </Link>
+
+              <div className="mb-1">
+                <button
+                  onClick={() => setIsEleversOpen(!isEleversOpen)}
+                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                >
+                  <div className="flex items-center">
+                    👥 <span className="ml-3">Mina elever</span>
+                  </div>
+                  <span className="text-gray-400">{isEleversOpen ? '▼' : '▶'}</span>
+                </button>
+
+                {isEleversOpen && (
+                  <div className="mt-1 space-y-1 pl-5">
+                    {loadingElever ? (
+                      <div className="px-3 py-2 text-xs text-gray-400">Laddar elever...</div>
+                    ) : elever.length > 0 ? (
+                      elever.map((elev) => (
+                        <Link
+                          key={elev.id}
+                          href={`/dashboard/elev/${elev.id}`}
+                          className={`flex items-center rounded-md px-3 py-2 text-sm ${isActivePage(`/dashboard/elev/${elev.id}`)}`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate">{elev.namn}</p>
+                            <p className="text-xs text-gray-400">
+                              {elev.Födelseår ? calculateAge(elev.Födelseår) : '?'} år, {elev.instrument}
+                            </p>
+                          </div>
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-xs text-gray-400">Inga elever tilldelade än</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/dashboard/lektioner"
+                className={`mb-1 flex items-center rounded-md px-3 py-2 text-sm font-medium ${isActivePage('/dashboard/lektioner')}`}
+              >
+                📅 <span className="ml-3">Alla lektioner</span>
+              </Link>
+
+              <Link
+                href="/dashboard/elevkarta"
+                className={`mb-1 flex items-center rounded-md px-3 py-2 text-sm font-medium ${isActivePage('/dashboard/elevkarta')}`}
+              >
+                🗺️ <span className="ml-3">Elevkarta</span>
+              </Link>
+
+              <Link
+                href="/dashboard/profil"
+                className={`mb-1 flex items-center rounded-md px-3 py-2 text-sm font-medium ${isActivePage('/dashboard/profil')}`}
+              >
+                👤 <span className="ml-3">Min profil</span>
+              </Link>
+            </div>
+          </nav>
+
+          <div className="border-t border-gray-200 p-4">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              🚪 <span className="ml-3">Logga ut</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-          {children}
-        </main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="flex items-center justify-between bg-white px-4 py-3 shadow md:hidden">
+          <button
+            type="button"
+            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Öppna meny"
+            aria-expanded={isMobileMenuOpen}
+          >
+            ☰
+          </button>
+          <div className="flex-1 pl-4 text-right">
+            <p className="text-sm font-medium text-gray-900">{session.user?.name || 'Lärare'}</p>
+            <p className="text-xs text-gray-500">{session.user?.email}</p>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
       </div>
     </div>
   )
