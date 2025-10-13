@@ -374,13 +374,19 @@ export default function AllaLektionerPage() {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Header med knappar */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Alla lektioner</h1>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
-              onClick={() => setShowScheduleUpdate(true)}
-              className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto sm:px-4 sm:text-base"
+              onClick={() => setShowNewLessonsForm(true)}
+              className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 sm:w-auto sm:px-4 sm:text-base"
+            >
+              Schemalägg lektion
+            </button>
+            <button
+              onClick={() => setShowBulkDelete(true)}
+              className="w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 sm:w-auto sm:px-4 sm:text-base"
             >
               Ändra upplägg eller lektionstid
             </button>
@@ -411,15 +417,12 @@ export default function AllaLektionerPage() {
         </div>
       </div>
 
-      {/* Uppdatera lektionstid modal */}
-      {showScheduleUpdate && (
+      {/* Skapa ny lektionstid modal */}
+      {showNewLessonsForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl sm:p-6">
-            <h2 className="mb-2 text-lg font-bold text-gray-900 sm:text-xl">Ändra upplägg eller lektionstid</h2>
-            <p className="mb-4 text-sm text-gray-600">
-              Välj eleven och vilka ändringar som ska gälla framåt. Alla kommande lektioner som inte är genomförda uppdateras.
-            </p>
-
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
+            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Schemalägg ny lektionstid</h2>
+            
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">Elev</label>
@@ -450,34 +453,61 @@ export default function AllaLektionerPage() {
                   <option value="120 min">120 min</option>
                 </select>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tid</label>
+                <input
+                  type="time"
+                  value={newLessonsForm.time}
+                  onChange={(e) => setNewLessonsForm(prev => ({ ...prev, time: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
+              <button
+                onClick={createRecurringLessons}
+                disabled={newLessonsForm.loading}
+                className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+              >
+                {newLessonsForm.loading ? 'Schemalägg...' : 'Schemalägg lektioner'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowNewLessonsForm(false)
+                  setNewLessonsForm({ elevId: '', weekday: '', time: '', loading: false })
+                }}
+                className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+              >
+                Avbryt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Veckodag</label>
-                  <select
-                    value={scheduleUpdateForm.weekday}
-                    onChange={(e) => setScheduleUpdateForm(prev => ({ ...prev, weekday: e.target.value }))}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Behåll nuvarande veckodag</option>
-                    <option value="måndag">Måndag</option>
-                    <option value="tisdag">Tisdag</option>
-                    <option value="onsdag">Onsdag</option>
-                    <option value="torsdag">Torsdag</option>
-                    <option value="fredag">Fredag</option>
-                    <option value="lördag">Lördag</option>
-                    <option value="söndag">Söndag</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Tid</label>
-                  <input
-                    type="time"
-                    value={scheduleUpdateForm.time}
-                    onChange={(e) => setScheduleUpdateForm(prev => ({ ...prev, time: e.target.value }))}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+      {/* Bulk delete modal */}
+      {showBulkDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
+            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Ta bort schemalagd lektionstid</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Elev</label>
+                <select
+                  value={bulkDeleteForm.elevId}
+                  onChange={(e) => setBulkDeleteForm(prev => ({ ...prev, elevId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="">Välj elev...</option>
+                  {myStudents.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.fields.Namn}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900">
@@ -485,12 +515,12 @@ export default function AllaLektionerPage() {
                 <p>Om du bara vill ändra upplägg eller tid kan du lämna de andra fälten tomma.</p>
               </div>
             </div>
-
+            
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
-                onClick={updateFutureLessons}
-                disabled={scheduleUpdateForm.loading}
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+                onClick={bulkDeleteLessons}
+                disabled={bulkDeleteForm.loading}
+                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
               >
                 {scheduleUpdateForm.loading ? 'Sparar...' : 'Spara ändringar'}
               </button>
@@ -515,43 +545,46 @@ export default function AllaLektionerPage() {
             const status = getLektionStatus(lektion)
             const elevId = Array.isArray(lektion.fields.Elev) ? lektion.fields.Elev[0] : lektion.fields.Elev
             const elevNamn = getStudentName(elevId)
-            
+
             return (
-              <div key={lektion.id} className="rounded-lg bg-white shadow-sm">
+              <div key={lektion.id} className="space-y-0">
                 <div
-                  className={`cursor-pointer rounded-t-lg border p-3 transition-colors hover:bg-gray-50 sm:p-4 ${
+                  className={`cursor-pointer rounded-t-xl border p-3 transition-shadow hover:shadow-md sm:p-4 ${
                     expandedLesson === lektion.id
-                      ? 'border-b-0 ' + status.color + ' rounded-b-none'
-                      : status.color + ' rounded-b-lg'
-                  }`}
+                      ? 'border-b-0 ' + status.color
+                      : status.color
+                  } ${expandedLesson === lektion.id ? 'rounded-b-none' : 'rounded-b-xl'}`}
                   onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                 >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                      <span className="text-base font-semibold text-gray-900 sm:text-lg">{elevNamn}</span>
-                      <span className="text-sm font-medium text-gray-700 sm:text-base">{formatDate(lektion.fields.Datum)}</span>
-                      <span className="text-xs text-gray-500 sm:text-sm">{lektion.fields.Klockslag}</span>
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${status.color.replace('border-', '')}`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="text-base font-semibold text-gray-900 sm:text-lg">{elevNamn}</span>
+                        <span className="text-sm text-gray-600 sm:text-base">{formatDate(lektion.fields.Datum)}</span>
+                        {lektion.fields.Klockslag && (
+                          <span className="text-xs text-gray-500 sm:text-sm">{lektion.fields.Klockslag}</span>
+                        )}
+                      </div>
+                      {lektion.fields['Anledning ombokning'] && (
+                        <p className="text-sm text-gray-600">
+                          Ombokad från ursprungligt datum – Anledning: {lektion.fields['Anledning ombokning']}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 sm:justify-end">
+                      <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 shadow-sm">
                         {status.status}
                       </span>
-                    </div>
-                    <span className="text-sm text-gray-400">
-                      {expandedLesson === lektion.id ? '▼' : '▶'}
-                    </span>
-                  </div>
-
-                  {lektion.fields['Anledning ombokning'] && (
-                    <div className="mt-2">
-                      <span className="text-sm text-gray-600">
-                        Ombokad från ursprungligt datum - Anledning: {lektion.fields['Anledning ombokning']}
+                      <span className="text-sm text-gray-400">
+                        {expandedLesson === lektion.id ? '▼' : '▶'}
                       </span>
                     </div>
-                  )}
+                  </div>
                 </div>
-                
+
                 {/* Dropdown content */}
                 {expandedLesson === lektion.id && (
-                  <div className={`rounded-b-lg border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
+                  <div className={`rounded-b-xl border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
                     status.status === 'genomförd' ? 'border-green-200' :
                     status.status === 'inställd' ? 'border-red-200' :
                     status.status === 'ombokad' ? 'border-yellow-200' :
@@ -876,7 +909,7 @@ export default function AllaLektionerPage() {
             )
           })
         ) : (
-          <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-10">
+          <div className="rounded-2xl border border-gray-200 bg-white/80 p-6 text-center shadow-sm ring-1 ring-gray-100 sm:p-10">
             <span className="mb-4 block text-3xl sm:text-4xl">📅</span>
             <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">Inga lektioner hittades</h3>
             <p className="text-gray-500">
