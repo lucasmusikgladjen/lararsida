@@ -59,101 +59,108 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Sätt nytt lösenord</h1>
-          <p className="text-gray-600 mt-2">Ange din e-post, återställningskod och välj ett nytt lösenord</p>
-          <p className="text-sm text-gray-500 mt-1">Återställningskoden får du från administratören</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              E-post (som finns i systemet)
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="din-epost@exempel.se"
-            />
+    <div className="min-h-dvh bg-gray-100">
+      <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col justify-center px-4 py-10 sm:px-6">
+        <div className="rounded-2xl bg-white/95 p-6 shadow-xl ring-1 ring-gray-100 sm:p-10">
+          <div className="mb-8 space-y-2 text-center">
+            <p className="text-sm font-medium uppercase tracking-wide text-emerald-600">Återställning</p>
+            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Sätt nytt lösenord</h1>
+            <p className="text-sm text-gray-600">Ange din e-post, återställningskod och välj ett nytt lösenord.</p>
+            <p className="text-xs text-gray-500">Återställningskoden får du av administratören.</p>
           </div>
 
-          <div>
-            <label htmlFor="resetCode" className="block text-sm font-medium text-gray-700">
-              Återställningskod
-            </label>
-            <input
-              id="resetCode"
-              type="text"
-              value={resetCode}
-              onChange={(e) => setResetCode(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Kod från administratören"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Nytt lösenord
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Minst 6 tecken"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Bekräfta lösenord
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Skriv lösenordet igen"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-left text-sm font-medium text-gray-700">
+                E-post (som finns i systemet)
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                placeholder="namn@exempel.se"
+                autoComplete="email"
+              />
             </div>
-          )}
 
-          {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-              {success}
+            <div className="space-y-2">
+              <label htmlFor="resetCode" className="block text-left text-sm font-medium text-gray-700">
+                Återställningskod
+              </label>
+              <input
+                id="resetCode"
+                type="text"
+                value={resetCode}
+                onChange={(e) => setResetCode(e.target.value)}
+                required
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                placeholder="Kod från administratören"
+                autoComplete="one-time-code"
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-          >
-            {loading ? 'Uppdaterar...' : 'Sätt nytt lösenord'}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-left text-sm font-medium text-gray-700">
+                Nytt lösenord
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                placeholder="Minst 6 tecken"
+                autoComplete="new-password"
+              />
+            </div>
 
-        <div className="mt-6 text-center">
-          <a href="/login" className="text-sm text-blue-600 hover:text-blue-500">
-            Tillbaka till inloggning
-          </a>
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-left text-sm font-medium text-gray-700">
+                Bekräfta lösenord
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                placeholder="Skriv lösenordet igen"
+                autoComplete="new-password"
+              />
+            </div>
+
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {success}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? 'Uppdaterar…' : 'Sätt nytt lösenord'}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm">
+            <a href="/login" className="font-medium text-blue-600 transition hover:text-blue-700">
+              Tillbaka till inloggning
+            </a>
+          </div>
         </div>
       </div>
     </div>

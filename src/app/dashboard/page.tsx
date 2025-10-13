@@ -315,125 +315,126 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 sm:p-6">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
           Välkommen tillbaka, {session?.user?.name}! 👋
         </h1>
-       
+
       </div>
 
       {/* Admin Message */}
       {loadingMessage ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600 mr-3"></div>
-            <span className="text-gray-800">Laddar meddelande...</span>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className="flex items-center justify-center gap-3 text-sm text-gray-700">
+            <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-gray-600"></div>
+            <span>Laddar meddelande...</span>
           </div>
         </div>
       ) : adminMessage ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <div className="flex items-start">
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="flex items-center mb-1">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">📢 Meddelande från HQ</span>
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {adminMessage.Rubrik || 'Meddelande från administrationen'}
-                  </h2>
-                </div>
-                {adminMessage.Datum && (
-                  <span className="text-sm text-gray-700">
-                    {formatDate(adminMessage.Datum)}
-                  </span>
-                )}
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <span className="text-xs font-medium uppercase tracking-wide text-gray-500">📢 Meddelande från HQ</span>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {adminMessage.Rubrik || 'Meddelande från administrationen'}
+                </h2>
               </div>
-              
+              {adminMessage.Datum && (
+                <span className="text-sm text-gray-700 sm:text-right">
+                  {formatDate(adminMessage.Datum)}
+                </span>
+              )}
+            </div>
+
               {/* Meddelande */}
-              <div 
-                className="text-gray-800 mb-4 whitespace-pre-wrap"
+              <div
+                className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800"
                 dangerouslySetInnerHTML={{
                   __html: convertMarkdownLinks(adminMessage.Meddelande || 'Inget meddelande tillgängligt')
                 }}
               />
-              
+
               {/* Länk/Knapp - nu över bilden */}
               {adminMessage.Länk && (
-                <div className="mb-4">
-                  <a 
+                <div>
+                  <a
                     href={adminMessage.Länk}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-between px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition-colors"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-900 sm:w-auto"
                   >
                     <span>{adminMessage.Länktext || 'Läs mer'}</span>
-                    <span className="ml-2 text-white">→</span>
+                    <span aria-hidden className="text-white">→</span>
                   </a>
                 </div>
               )}
-              
+
               {/* Bild - nu under knappen */}
               {adminMessage.Bild && adminMessage.Bild.length > 0 && (
-                <div className="mb-4">
-                  <img 
-                    src={adminMessage.Bild[0].url} 
+                <div className="overflow-hidden rounded-xl">
+                  <img
+                    src={adminMessage.Bild[0].url}
                     alt="Meddelande bild"
-                    className="max-w-full h-auto rounded-lg shadow-sm"
-                    style={{ maxHeight: '300px' }}
+                    className="h-auto w-full object-cover"
+                    style={{ maxHeight: '320px' }}
                   />
                 </div>
               )}
-            </div>
           </div>
         </div>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <div className="text-center text-gray-500">
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-white/70 p-6">
+          <div className="flex flex-col items-center gap-2 text-center text-sm text-gray-500">
             <span className="text-2xl">📭</span>
-            <p className="mt-2">Inga nya meddelanden från administrationen</p>
+            <p>Inga nya meddelanden från administrationen</p>
           </div>
         </div>
       )}
 
       {/* Schema */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Ditt schema</h2>
-          
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setCurrentWeekOffset(currentWeekOffset - 1)}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              disabled={loadingLektioner}
-            >
-              <span className="text-gray-600">← Förra veckan</span>
-            </button>
-            
-            <div className="text-center min-w-[200px]">
-              <div className="font-medium text-gray-900">{getWeekTitle()}</div>
-              <div className="text-sm text-gray-500">
-                {getWeekDays()[0].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} - {getWeekDays()[6].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
+      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 sm:p-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Ditt schema</h2>
+            <p className="text-sm text-gray-500">Navigera mellan veckor och håll koll på varje lektion.</p>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:items-end">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+              <button
+                onClick={() => setCurrentWeekOffset(currentWeekOffset - 1)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={loadingLektioner}
+              >
+                ← Förra veckan
+              </button>
+
+              <div className="min-w-[180px] rounded-lg bg-gray-100 px-3 py-2 text-center">
+                <div className="text-sm font-semibold text-gray-900">{getWeekTitle()}</div>
+                <div className="text-xs text-gray-600">
+                  {getWeekDays()[0].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} – {getWeekDays()[6].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
+                </div>
               </div>
+
+              <button
+                onClick={() => setCurrentWeekOffset(currentWeekOffset + 1)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={loadingLektioner}
+              >
+                Nästa vecka →
+              </button>
             </div>
-            
-            <button
-              onClick={() => setCurrentWeekOffset(currentWeekOffset + 1)}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              disabled={loadingLektioner}
-            >
-              <span className="text-gray-600">Nästa vecka →</span>
-            </button>
-            
+
             {currentWeekOffset !== 0 && (
               <button
                 onClick={() => {
                   // Hitta vilken vecka som innehåller idag
                   const today = new Date()
                   let testOffset = 0
-                  
+
                   // Testa olika offsets för att hitta veckan som innehåller idag
                   for (let i = -10; i <= 10; i++) {
                     const testDays = getWeekDaysForOffset(i)
@@ -442,13 +443,13 @@ export default function DashboardPage() {
                       break
                     }
                   }
-                  
+
                   setCurrentWeekOffset(testOffset)
                 }}
-                className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={loadingLektioner}
               >
-                Idag
+                Gå till denna vecka
               </button>
             )}
           </div>
@@ -466,16 +467,16 @@ export default function DashboardPage() {
               const isToday = day.toDateString() === new Date().toDateString()
               
               return (
-                <div key={index} className={`border rounded-lg p-4 ${isToday ? 'border-gray-300 bg-gray-50' : 'border-gray-200'}`}>
+                <div key={index} className={`rounded-xl border p-4 shadow-sm transition ${isToday ? 'border-gray-300 bg-gray-50/80' : 'border-gray-200 bg-white'}`}>
                   <div className="mb-3">
                     <h3 className={`font-medium ${isToday ? 'text-gray-900' : 'text-gray-900'}`}>
                       {day.toLocaleDateString('sv-SE', { weekday: 'long', month: 'long', day: 'numeric' })}
                       {isToday && <span className="ml-2 text-sm text-gray-500">(Idag)</span>}
                     </h3>
                   </div>
-                  
+
                   {dayLektioner.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {dayLektioner.map((lektion: any) => {
                         const status = getLektionStatus(lektion)
                         const elevId = Array.isArray(lektion.fields.Elev) ? lektion.fields.Elev[0] : lektion.fields.Elev
@@ -483,17 +484,17 @@ export default function DashboardPage() {
                         
                         return (
                           <div key={lektion.id} className="space-y-0">
-                            <div 
-                              className={`p-3 rounded-t-md border cursor-pointer hover:shadow-sm transition-shadow ${
-                                expandedLesson === lektion.id 
-                                  ? 'border-b-0 ' + status.color 
+                            <div
+                              className={`cursor-pointer rounded-t-xl border p-3 transition-shadow hover:shadow-md sm:p-4 ${
+                                expandedLesson === lektion.id
+                                  ? 'border-b-0 ' + status.color
                                   : status.color
-                              } ${expandedLesson === lektion.id ? 'rounded-b-none' : 'rounded-b-md'}`}
+                              } ${expandedLesson === lektion.id ? 'rounded-b-none' : 'rounded-b-xl'}`}
                               onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex-1">
-                                  <div className="flex items-center space-x-2">
+                                  <div className="flex flex-wrap items-center gap-2">
                                     <span className="font-medium">
                                       {elevNamn}
                                     </span>
@@ -507,11 +508,11 @@ export default function DashboardPage() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-xs font-medium capitalize">
+                                <div className="flex items-center justify-between gap-2 sm:justify-end">
+                                  <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 shadow-sm">
                                     {status.status}
                                   </span>
-                                  <span className="text-gray-400 text-sm">
+                                  <span className="text-sm text-gray-400">
                                     {expandedLesson === lektion.id ? '▼' : '▶'}
                                   </span>
                                 </div>
@@ -520,7 +521,7 @@ export default function DashboardPage() {
                             
                             {/* Dropdown content - direkt under utan gap */}
                             {expandedLesson === lektion.id && (
-                              <div className={`bg-white border border-t-0 rounded-b-md p-4 shadow-sm ${
+                              <div className={`rounded-b-xl border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
                                 status.status === 'genomförd' ? 'border-green-200' :
                                 status.status === 'inställd' ? 'border-red-200' :
                                 status.status === 'ombokad' ? 'border-yellow-200' :
@@ -569,36 +570,36 @@ export default function DashboardPage() {
                                     {/* Huvudknappar */}
                                     {actionState.lessonId !== lektion.id && (
                                       <div className="space-y-3">
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
                                           <button
-                                            onClick={() => setActionState({ 
-                                              lessonId: lektion.id, 
-                                              action: 'genomförd', 
-                                              data: {} 
+                                            onClick={() => setActionState({
+                                              lessonId: lektion.id,
+                                              action: 'genomförd',
+                                              data: {}
                                             })}
-                                            className="px-4 py-3 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+                                            className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-green-700"
                                           >
                                             ✅ Genomförd
                                           </button>
-                                          
+
                                           <button
-                                            onClick={() => setActionState({ 
+                                            onClick={() => setActionState({
                                               lessonId: lektion.id, 
                                               action: 'ombokad', 
                                               data: {} 
                                             })}
-                                            className="px-4 py-3 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                                            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
                                           >
                                             📅 Boka om
                                           </button>
-                                          
+
                                           <button
-                                            onClick={() => setActionState({ 
+                                            onClick={() => setActionState({
                                               lessonId: lektion.id, 
                                               action: 'inställd', 
                                               data: {} 
                                             })}
-                                            className="px-3 py-3 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                                            className="w-full rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-red-700"
                                           >
                                             ❌ Ställ in
                                           </button>
@@ -641,7 +642,7 @@ export default function DashboardPage() {
                                             />
                                           </div>
                                         </div>
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'genomförd', actionState.data)}
                                             disabled={!actionState.data.lektionsanteckning}
@@ -669,7 +670,7 @@ export default function DashboardPage() {
                                             </label>
                                             <input
                                               type="date"
-                                              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               onChange={(e) => setActionState(prev => ({
                                                 ...prev,
                                                 data: { ...prev.data, datum: e.target.value }
@@ -682,7 +683,7 @@ export default function DashboardPage() {
                                             </label>
                                             <input
                                               type="time"
-                                              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               placeholder={lektion.fields.Klockslag || 'Behåll nuvarande tid'}
                                               onChange={(e) => setActionState(prev => ({
                                                 ...prev,
@@ -708,7 +709,7 @@ export default function DashboardPage() {
                                             />
                                           </div>
                                         </div>
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'ombokad', actionState.data)}
                                             disabled={!actionState.data.datum || !actionState.data.anledning}
@@ -730,14 +731,12 @@ export default function DashboardPage() {
                                     {actionState.lessonId === lektion.id && actionState.action === 'inställd' && (
                                       <div className="space-y-4">
                                         {/* Varningstext */}
-                                        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                                          <div className="flex">
-                                            <div className="flex-shrink-0">
-                                              <span className="text-yellow-400">⚠️</span>
-                                            </div>
-                                            <div className="ml-3">
+                                        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 sm:p-4">
+                                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                                            <div className="text-xl sm:pt-1">⚠️</div>
+                                            <div>
                                               <h4 className="text-sm font-medium text-yellow-800">Prova dessa alternativ först:</h4>
-                                              <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside space-y-1">
+                                              <ul className="mt-2 list-disc space-y-1 text-sm text-yellow-700 sm:ml-4">
                                                 <li>Boka om till ett annat datum</li>
                                                 <li>Kör dubbellektion nästa gång</li>
                                                 <li>Lägg in en extralektion under lov eller helg</li>
@@ -753,7 +752,7 @@ export default function DashboardPage() {
                                               Vem ställer in lektionen?
                                             </label>
                                             <div className="space-y-2">
-                                              <label className="flex items-center">
+                                              <label className="flex items-center gap-2">
                                                 <input
                                                   type="checkbox"
                                                   className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
@@ -769,9 +768,9 @@ export default function DashboardPage() {
                                                     }))
                                                   }}
                                                 />
-                                                <span className="ml-2 text-sm text-gray-700">Lärare ställer in</span>
+                                                <span className="text-sm text-gray-700">Lärare ställer in</span>
                                               </label>
-                                              <label className="flex items-center">
+                                              <label className="flex items-center gap-2">
                                                 <input
                                                   type="checkbox"
                                                   className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
@@ -787,7 +786,7 @@ export default function DashboardPage() {
                                                     }))
                                                   }}
                                                 />
-                                                <span className="ml-2 text-sm text-gray-700">Vårdnadshavare ställer in</span>
+                                                <span className="text-sm text-gray-700">Vårdnadshavare ställer in</span>
                                               </label>
                                             </div>
                                           </div>
@@ -817,7 +816,7 @@ export default function DashboardPage() {
                                             />
                                           </div>
                                         </div>
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'inställd', actionState.data)}
                                             disabled={!actionState.data.anledning || !actionState.data.vemStällerIn}
