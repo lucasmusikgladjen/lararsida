@@ -180,11 +180,11 @@ export default function ProfilPage() {
     )
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status */}
       {statusMessage && (
         <div
-          className={`rounded-lg border p-3 sm:p-4 ${
+          className={`rounded-xl border p-3 shadow-sm sm:p-4 ${
             statusMessage.type === 'success'
               ? 'bg-green-50 border-green-200 text-green-800'
               : 'bg-red-50 border-red-200 text-red-800'
@@ -198,7 +198,7 @@ export default function ProfilPage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="relative">
             {profile.fields.Profilbild?.[0]?.url ? (
@@ -228,7 +228,7 @@ export default function ProfilPage() {
             )}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{profile.fields.Namn}</h1>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">{profile.fields.Namn}</h1>
             <p className="text-sm text-gray-600 sm:text-base">
               {profile.fields.Instrument || 'Instrument ej angivet'}
             </p>
@@ -277,7 +277,7 @@ export default function ProfilPage() {
       </div>
 
       {/* Personuppgifter */}
-      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
@@ -422,7 +422,7 @@ export default function ProfilPage() {
       </div>
 
       {/* Löneuppgifter */}
-      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
@@ -490,7 +490,7 @@ export default function ProfilPage() {
 
 
       {/* Elever */}
-      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
@@ -580,7 +580,7 @@ export default function ProfilPage() {
       </div>
 
       {/* Biografi */}
-      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
@@ -621,7 +621,7 @@ export default function ProfilPage() {
       </div>
 
       {/* Dokument */}
-      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}

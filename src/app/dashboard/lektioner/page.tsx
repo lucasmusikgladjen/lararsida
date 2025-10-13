@@ -630,11 +630,11 @@ export default function AllaLektionerPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Header med knappar */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Alla lektioner</h1>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Alla lektioner</h1>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={handleOpenScheduleModal}
@@ -646,7 +646,7 @@ export default function AllaLektionerPage() {
         </div>
 
         {/* Filter */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
           {[
             { key: 'tidigare', label: 'Tidigare' },
             { key: 'kommande', label: 'Kommande' },
@@ -657,7 +657,7 @@ export default function AllaLektionerPage() {
             <button
               key={filterOption.key}
               onClick={() => setFilter(filterOption.key)}
-              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors sm:text-base ${
                 filter === filterOption.key
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -966,43 +966,46 @@ export default function AllaLektionerPage() {
             const status = getLektionStatus(lektion)
             const elevId = Array.isArray(lektion.fields.Elev) ? lektion.fields.Elev[0] : lektion.fields.Elev
             const elevNamn = getStudentName(elevId)
-            
+
             return (
-              <div key={lektion.id} className="rounded-lg bg-white shadow-sm">
+              <div key={lektion.id} className="space-y-0">
                 <div
-                  className={`cursor-pointer rounded-t-lg border p-3 transition-colors hover:bg-gray-50 sm:p-4 ${
+                  className={`cursor-pointer rounded-t-xl border p-3 transition-shadow hover:shadow-md sm:p-4 ${
                     expandedLesson === lektion.id
-                      ? 'border-b-0 ' + status.color + ' rounded-b-none'
-                      : status.color + ' rounded-b-lg'
-                  }`}
+                      ? 'border-b-0 ' + status.color
+                      : status.color
+                  } ${expandedLesson === lektion.id ? 'rounded-b-none' : 'rounded-b-xl'}`}
                   onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                 >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                      <span className="text-base font-semibold text-gray-900 sm:text-lg">{elevNamn}</span>
-                      <span className="text-sm font-medium text-gray-700 sm:text-base">{formatDate(lektion.fields.Datum)}</span>
-                      <span className="text-xs text-gray-500 sm:text-sm">{lektion.fields.Klockslag}</span>
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${status.color.replace('border-', '')}`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="text-base font-semibold text-gray-900 sm:text-lg">{elevNamn}</span>
+                        <span className="text-sm text-gray-600 sm:text-base">{formatDate(lektion.fields.Datum)}</span>
+                        {lektion.fields.Klockslag && (
+                          <span className="text-xs text-gray-500 sm:text-sm">{lektion.fields.Klockslag}</span>
+                        )}
+                      </div>
+                      {lektion.fields['Anledning ombokning'] && (
+                        <p className="text-sm text-gray-600">
+                          Ombokad från ursprungligt datum – Anledning: {lektion.fields['Anledning ombokning']}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 sm:justify-end">
+                      <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 shadow-sm">
                         {status.status}
                       </span>
-                    </div>
-                    <span className="text-sm text-gray-400">
-                      {expandedLesson === lektion.id ? '▼' : '▶'}
-                    </span>
-                  </div>
-
-                  {lektion.fields['Anledning ombokning'] && (
-                    <div className="mt-2">
-                      <span className="text-sm text-gray-600">
-                        Ombokad från ursprungligt datum - Anledning: {lektion.fields['Anledning ombokning']}
+                      <span className="text-sm text-gray-400">
+                        {expandedLesson === lektion.id ? '▼' : '▶'}
                       </span>
                     </div>
-                  )}
+                  </div>
                 </div>
-                
+
                 {/* Dropdown content */}
                 {expandedLesson === lektion.id && (
-                  <div className={`rounded-b-lg border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
+                  <div className={`rounded-b-xl border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
                     status.status === 'genomförd' ? 'border-green-200' :
                     status.status === 'inställd' ? 'border-red-200' :
                     status.status === 'ombokad' ? 'border-yellow-200' :
@@ -1327,7 +1330,7 @@ export default function AllaLektionerPage() {
             )
           })
         ) : (
-          <div className="rounded-lg bg-white p-6 text-center shadow-sm sm:p-10">
+          <div className="rounded-2xl border border-gray-200 bg-white/80 p-6 text-center shadow-sm ring-1 ring-gray-100 sm:p-10">
             <span className="mb-4 block text-3xl sm:text-4xl">📅</span>
             <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">Inga lektioner hittades</h3>
             <p className="text-gray-500">

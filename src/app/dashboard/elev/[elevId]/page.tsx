@@ -281,10 +281,10 @@ export default function ElevPage() {
   const displayedLektioner = showAllLessons ? lektioner : lektioner.slice(0, 3)
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status Messages */}
       {statusMessage && (
-        <div className={`rounded-lg border p-3 sm:p-4 ${
+        <div className={`rounded-xl border p-3 shadow-sm sm:p-4 ${
           statusMessage.type === 'success'
             ? 'bg-green-50 border-green-200 text-green-800'
             : 'bg-red-50 border-red-200 text-red-800'
@@ -299,50 +299,50 @@ export default function ElevPage() {
       {/* Elevinfo och Vårdnadshavare */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
         {/* Elevinfo */}
-        <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
-          <h1 className="mb-4 text-xl font-bold text-gray-900 sm:text-2xl">
+        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
+          <h1 className="mb-4 text-xl font-bold text-gray-900 sm:text-3xl">
             {elev.Namn}
           </h1>
           <div className="space-y-3">
-            <div className="flex items-center">
-              <span className="w-24 text-sm font-medium text-gray-500">Ålder:</span>
-              <span className="text-sm text-gray-900 sm:text-base">
+            <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Ålder:</span>
+              <span className="min-w-0 text-sm text-gray-900 sm:flex-1 sm:text-base break-words">
                 {elev.Födelseår ? calculateAge(elev.Födelseår) : 'Okänd'} år
               </span>
             </div>
-            <div className="flex items-center">
-              <span className="w-24 text-sm font-medium text-gray-500">Instrument:</span>
-              <span className="text-sm text-gray-900 sm:text-base">{elev.Instrument || 'Inte angivet'}</span>
+            <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Instrument:</span>
+              <span className="min-w-0 text-sm text-gray-900 sm:flex-1 sm:text-base break-words">{elev.Instrument || 'Inte angivet'}</span>
             </div>
           </div>
         </div>
 
         {/* Vårdnadshavare */}
-        <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
             Vårdnadshavare
           </h2>
           {vårdnadshavare ? (
             <div className="space-y-3">
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Namn:</span>
-                <span className="text-sm text-gray-900 sm:text-base">{vårdnadshavare.Namn}</span>
+              <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Namn:</span>
+                <span className="min-w-0 text-sm text-gray-900 sm:flex-1 sm:text-base break-words">{vårdnadshavare.Namn}</span>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Adress:</span>
-                <span className="text-sm text-gray-900 sm:text-base">
+              <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Adress:</span>
+                <span className="min-w-0 text-sm text-gray-900 sm:flex-1 sm:text-base break-words">
                   {vårdnadshavare.Gata} {vårdnadshavare.Gatunummer}, {vårdnadshavare.Ort}
                 </span>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">E-post:</span>
-                <a href={`mailto:${vårdnadshavare['E-post']}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
+              <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">E-post:</span>
+                <a href={`mailto:${vårdnadshavare['E-post']}`} className="min-w-0 text-sm text-blue-600 hover:text-blue-800 sm:flex-1 sm:text-base break-words">
                   {vårdnadshavare['E-post']}
                 </a>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Telefon:</span>
-                <a href={`tel:${vårdnadshavare.Telefon}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
+              <div className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:items-center">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Telefon:</span>
+                <a href={`tel:${vårdnadshavare.Telefon}`} className="min-w-0 text-sm text-blue-600 hover:text-blue-800 sm:flex-1 sm:text-base break-words">
                   {vårdnadshavare.Telefon}
                 </a>
               </div>
@@ -354,13 +354,13 @@ export default function ElevPage() {
       </div>
 
       {/* Nästa planerade lektion */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
           Nästa planerade lektion
         </h2>
 
         {nextLesson ? (
-          <div className={`rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4`}>
+          <div className={`rounded-xl border border-blue-200 bg-blue-50 p-3 transition-shadow hover:shadow-md sm:p-4`}>
             <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="font-medium text-blue-900 sm:text-lg">{formatDate(nextLesson.fields.Datum)}</span>
@@ -392,15 +392,15 @@ export default function ElevPage() {
             )}
             
             {nextLesson.fields.Läxa && (
-              <div className="mt-3 p-3 bg-blue-100 rounded-md">
+              <div className="mt-3 rounded-lg border border-blue-200 bg-blue-100 p-3">
                 <h4 className="text-sm font-medium text-blue-800 mb-1">Läxa att förbereda:</h4>
                 <p className="text-blue-900 text-sm">{nextLesson.fields.Läxa}</p>
               </div>
             )}
-            
+
             {/* Ombokning bekräftelse */}
             {actionState.lessonId === nextLesson.id && actionState.action === 'ombokad' && (
-              <div className="mt-4 rounded-md border border-blue-300 bg-white p-4 sm:p-5">
+              <div className="mt-4 rounded-xl border border-blue-300 bg-white p-4 sm:p-5">
                 <h4 className="mb-3 text-sm font-medium text-gray-700">Boka om lektion</h4>
                 <div className="space-y-3">
                   <div>
@@ -476,7 +476,7 @@ export default function ElevPage() {
       </div>
 
       {/* Senaste lektioner */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
           Senaste genomförda lektioner
         </h2>
@@ -487,16 +487,18 @@ export default function ElevPage() {
               return (
                 <div key={lektion.id} className="space-y-0">
                   <div
-                    className={`cursor-pointer rounded-t-lg border border-green-200 bg-green-100 p-3 text-green-800 transition-colors hover:bg-green-100/80 sm:p-4 ${
-                      expandedLesson === lektion.id ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
+                    className={`cursor-pointer rounded-t-xl border border-green-200 bg-green-100 p-3 text-green-900 transition-shadow hover:bg-green-100/80 hover:shadow-md sm:p-4 ${
+                      expandedLesson === lektion.id ? 'rounded-b-none border-b-0' : 'rounded-b-xl'
                     }`}
                     onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                   >
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         <span className="font-medium text-gray-900 sm:text-lg">{formatDate(lektion.fields.Datum)}</span>
-                        <span className="text-sm text-gray-700">{lektion.fields.Klockslag}</span>
-                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+                        {lektion.fields.Klockslag && (
+                          <span className="text-sm text-gray-700">{lektion.fields.Klockslag}</span>
+                        )}
+                        <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-green-800 shadow-sm">
                           Genomförd
                         </span>
                       </div>
@@ -506,36 +508,34 @@ export default function ElevPage() {
                     </div>
 
                     {lektion.fields['Anledning ombokning'] && (
-                      <div className="mt-2">
-                        <span className="text-sm text-gray-700">
-                          Ombokad från ursprungligt datum - Anledning: {lektion.fields['Anledning ombokning']}
-                        </span>
-                      </div>
+                      <p className="mt-2 text-sm text-gray-700">
+                        Ombokad från ursprungligt datum – Anledning: {lektion.fields['Anledning ombokning']}
+                      </p>
                     )}
                   </div>
 
                   {/* Dropdown content - bara visa information */}
                   {expandedLesson === lektion.id && (
-                    <div className="rounded-b-lg border border-t-0 border-gray-200 bg-white p-4 sm:p-5">
+                    <div className="rounded-b-xl border border-t-0 border-gray-200 bg-white p-4 sm:p-5">
                       <div className="space-y-3">
                         {lektion.fields.Lektionsanteckning && (
                           <div>
                             <h4 className="text-sm font-medium text-gray-700 mb-2">Vad gjorde ni på lektionen:</h4>
-                            <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                            <div className="border border-gray-200 bg-gray-50 p-3 rounded-lg">
                               <p className="text-gray-900 text-sm">{lektion.fields.Lektionsanteckning}</p>
                             </div>
                           </div>
                         )}
-                        
+
                         {lektion.fields.Läxa && (
                           <div>
                             <h4 className="text-sm font-medium text-gray-700 mb-2">Läxa till nästa gång:</h4>
-                            <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                            <div className="border border-gray-200 bg-gray-50 p-3 rounded-lg">
                               <p className="text-gray-900 text-sm">{lektion.fields.Läxa}</p>
                             </div>
                           </div>
                         )}
-                        
+
                         {!lektion.fields.Lektionsanteckning && !lektion.fields.Läxa && (
                           <p className="text-gray-500 text-sm">Inga anteckningar eller läxor registrerade för denna lektion.</p>
                         )}
@@ -570,7 +570,7 @@ export default function ElevPage() {
       </div>
 
       {/* Terminsmål */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Terminsmål</h2>
           <button
@@ -590,7 +590,7 @@ export default function ElevPage() {
       </div>
 
       {/* Lärandematerial */}
-      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
             Lärandematerial
