@@ -203,7 +203,7 @@ export default function FirstLessonPage() {
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+            <label className="flex flex-col gap-2 text-sm font-medium text-gray-700 md:col-span-2">
               Elev
               <select
                 name="studentId"
@@ -307,7 +307,7 @@ export default function FirstLessonPage() {
               </select>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+            <label className="flex flex-col gap-2 text-sm font-medium text-gray-700 md:col-span-2">
               Terminsmål
               <textarea
                 name="termGoal"
