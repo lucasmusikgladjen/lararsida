@@ -106,7 +106,7 @@ export default function DashboardLayout({
     <div className="min-h-dvh bg-gray-100">
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur md:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-4 px-4 py-3">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
@@ -117,12 +117,6 @@ export default function DashboardLayout({
             <p className="truncate text-sm font-semibold text-gray-900">{session.user?.name || 'Lärare'}</p>
             <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50"
-          >
-            Logga ut
-          </button>
         </div>
       </div>
 
