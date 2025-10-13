@@ -77,6 +77,20 @@ export default function ProfilPage() {
     setEditMode(false)
   }
 
+  const handleEnterEditMode = () => setEditMode(true)
+
+  const EditHintButton = ({ className = '', ariaLabel }: { className?: string; ariaLabel?: string }) =>
+    !editMode ? (
+      <button
+        type="button"
+        onClick={handleEnterEditMode}
+        className={`inline-flex items-center rounded-full bg-gray-100/70 px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${className}`}
+        aria-label={ariaLabel}
+      >
+        Redigera
+      </button>
+    ) : null
+
   useEffect(() => {
     if (session?.user?.teacherId) {
       fetchProfile()
@@ -239,7 +253,7 @@ export default function ProfilPage() {
 
       {/* Header */}
       <div
-        className={`flex flex-col gap-4 rounded-2xl border bg-white/80 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
+        className={`relative flex flex-col gap-4 rounded-2xl border bg-white/80 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
           editMode ? 'border-blue-200 ring-2 ring-blue-100' : 'border-gray-200 ring-1 ring-gray-100'
         }`}
       >
@@ -285,13 +299,14 @@ export default function ProfilPage() {
             </span>
           ) : (
             <button
-              onClick={() => setEditMode(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 sm:px-4"
+              onClick={handleEnterEditMode}
+              className="inline-flex items-center gap-1.5 self-start rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:self-auto sm:px-4 sm:py-1.5 sm:text-sm"
             >
               ✏️ Redigera profil
             </button>
           )}
         </div>
+        <EditHintButton className="absolute right-4 top-4 hidden sm:inline-flex" ariaLabel="Redigera din profil" />
       </div>
 
       {/* Personuppgifter */}
@@ -300,7 +315,10 @@ export default function ProfilPage() {
           editMode ? 'border border-blue-200 ring-2 ring-blue-100' : 'border border-gray-200 ring-1 ring-gray-100'
         }`}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
+          <EditHintButton ariaLabel="Aktivera redigering för personuppgifter" />
+        </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
             Uppdatera dina uppgifter nedan och spara när du är klar.
@@ -494,7 +512,10 @@ export default function ProfilPage() {
           editMode ? 'border border-blue-200 ring-2 ring-blue-100' : 'border border-gray-200 ring-1 ring-gray-100'
         }`}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
+          <EditHintButton ariaLabel="Aktivera redigering för elever" />
+        </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
             Justera dina mål och följ upp elevantalet här nedan.
@@ -577,7 +598,10 @@ export default function ProfilPage() {
           editMode ? 'border border-blue-200 ring-2 ring-blue-100' : 'border border-gray-200 ring-1 ring-gray-100'
         }`}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
+          <EditHintButton ariaLabel="Aktivera redigering för biografi" />
+        </div>
         {editMode ? (
           <textarea
             value={editForm.Biografi}
@@ -606,7 +630,10 @@ export default function ProfilPage() {
           editMode ? 'border border-blue-200 ring-2 ring-blue-100' : 'border border-gray-200 ring-1 ring-gray-100'
         }`}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
+          <EditHintButton ariaLabel="Aktivera redigering för dokument" />
+        </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
             Ladda upp nya filer eller ersätt befintliga dokument.
