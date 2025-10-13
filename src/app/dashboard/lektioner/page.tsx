@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
+import { LessonReportPayload, sendLessonReportToGuardian } from '../utils/sendLessonReport'
+
 export default function AllaLektionerPage() {
   const { data: session } = useSession()
   
@@ -165,18 +167,28 @@ export default function AllaLektionerPage() {
   const handleActionConfirm = async (lessonId: string, action: string, data: any) => {
     // Hitta lektionen för att få tillgång till befintliga fält
     const currentLesson = lektioner.find(l => l.id === lessonId)
-    
+
     let updates: any = {}
-    
+    let reportPayload: LessonReportPayload | null = null
+
     if (action === 'genomförd') {
+      const notes = data.lektionsanteckning || ''
+      const homework = data.läxa || ''
+
       updates = {
         'Genomförd': true,
         'Inställd': false,
         'Ombokad till': null,
-        'Läxa': data.läxa || '',
-        'Lektionsanteckning': data.lektionsanteckning || '',
+        'Läxa': homework,
+        'Lektionsanteckning': notes,
         'Anledning ombokning': null,
         'Anledning inställd': null
+      }
+
+      reportPayload = {
+        lessonId,
+        notes,
+        homework,
       }
     } else if (action === 'ombokad') {
       updates = {
@@ -196,8 +208,13 @@ export default function AllaLektionerPage() {
         'Anledning ombokning': null
       }
     }
-    
-    await updateLessonStatus(lessonId, updates)
+
+    const wasUpdated = await updateLessonStatus(lessonId, updates)
+
+    if (wasUpdated && reportPayload) {
+      await sendLessonReportToGuardian(reportPayload)
+    }
+
     setActionState({ lessonId: null, action: null, data: {} })
   }
 
@@ -219,17 +236,20 @@ export default function AllaLektionerPage() {
 
       if (response.ok) {
         // Uppdatera lokal state
-        setLektioner(prev => prev.map(lektion => 
-          lektion.id === lessonId 
+        setLektioner(prev => prev.map(lektion =>
+          lektion.id === lessonId
             ? { ...lektion, fields: { ...lektion.fields, ...updates } }
             : lektion
         ))
         setExpandedLesson(null)
+        return true
       } else {
         console.error('Failed to update lesson')
+        return false
       }
     } catch (error) {
       console.error('Error updating lesson:', error)
+      return false
     }
   }
 
