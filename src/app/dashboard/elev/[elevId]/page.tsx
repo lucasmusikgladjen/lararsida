@@ -203,14 +203,37 @@ export default function ElevPage() {
 
   const getLektionStatus = (lektion: any) => {
     if (lektion.fields.Genomförd) {
-      return { status: 'genomförd', color: 'bg-green-100 text-green-800' }
+      return {
+        key: 'genomförd',
+        label: 'Genomförd',
+        card: 'border-green-200 bg-green-50',
+        badge: 'border border-green-200 bg-green-100 text-green-700',
+        accent: 'text-green-700',
+      }
     } else if (lektion.fields.Inställd) {
-      return { status: 'inställd', color: 'bg-red-100 text-red-800' }
+      return {
+        key: 'inställd',
+        label: 'Inställd',
+        card: 'border-red-200 bg-red-50',
+        badge: 'border border-red-200 bg-red-100 text-red-700',
+        accent: 'text-red-700',
+      }
     } else if (lektion.fields['Anledning ombokning']) {
-      // Om det finns en ombokningsanledning så är lektionen ombokad (även om datumet nu är uppdaterat)
-      return { status: 'ombokad', color: 'bg-yellow-100 text-yellow-800' }
-    } else {
-      return { status: 'planerad', color: 'bg-blue-100 text-blue-800' }
+      return {
+        key: 'ombokad',
+        label: 'Ombokad',
+        card: 'border-yellow-200 bg-yellow-50',
+        badge: 'border border-yellow-200 bg-yellow-100 text-yellow-700',
+        accent: 'text-yellow-700',
+      }
+    }
+
+    return {
+      key: 'planerad',
+      label: 'Planerad',
+      card: 'border-blue-200 bg-blue-50',
+      badge: 'border border-blue-200 bg-blue-100 text-blue-700',
+      accent: 'text-blue-700',
     }
   }
 
@@ -484,10 +507,14 @@ export default function ElevPage() {
         {lektioner.length > 0 ? (
           <div className="space-y-2">
             {displayedLektioner.map((lektion) => {
+              const status = getLektionStatus(lektion)
+
               return (
                 <div key={lektion.id} className="space-y-0">
                   <div
-                    className={`cursor-pointer rounded-t-xl border border-green-200 bg-green-100 p-3 text-green-900 transition-shadow hover:bg-green-100/80 hover:shadow-md sm:p-4 ${
+                    className={`cursor-pointer rounded-t-xl border p-3 transition-shadow hover:shadow-md sm:p-4 ${
+                      status.card
+                    } ${
                       expandedLesson === lektion.id ? 'rounded-b-none border-b-0' : 'rounded-b-xl'
                     }`}
                     onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
@@ -498,8 +525,10 @@ export default function ElevPage() {
                         {lektion.fields.Klockslag && (
                           <span className="text-sm text-gray-700">{lektion.fields.Klockslag}</span>
                         )}
-                        <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-green-800 shadow-sm">
-                          Genomförd
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm ${status.badge}`}
+                        >
+                          {status.label}
                         </span>
                       </div>
                       <span className="text-sm text-gray-500">
@@ -508,7 +537,7 @@ export default function ElevPage() {
                     </div>
 
                     {lektion.fields['Anledning ombokning'] && (
-                      <p className="mt-2 text-sm text-gray-700">
+                      <p className={`mt-2 text-sm ${status.accent}`}>
                         Ombokad från ursprungligt datum – Anledning: {lektion.fields['Anledning ombokning']}
                       </p>
                     )}
@@ -516,7 +545,17 @@ export default function ElevPage() {
 
                   {/* Dropdown content - bara visa information */}
                   {expandedLesson === lektion.id && (
-                    <div className="rounded-b-xl border border-t-0 border-gray-200 bg-white p-4 sm:p-5">
+                    <div
+                      className={`rounded-b-xl border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
+                        status.key === 'genomförd'
+                          ? 'border-green-200'
+                          : status.key === 'inställd'
+                          ? 'border-red-200'
+                          : status.key === 'ombokad'
+                          ? 'border-yellow-200'
+                          : 'border-blue-200'
+                      }`}
+                    >
                       <div className="space-y-3">
                         {lektion.fields.Lektionsanteckning && (
                           <div>
