@@ -3,6 +3,8 @@
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
+import { LessonReportPayload, sendLessonReportToGuardian } from './utils/sendLessonReport'
+
 export default function DashboardPage() {
   const { data: session } = useSession()
   const [adminMessage, setAdminMessage] = useState<any>(null)
@@ -158,18 +160,28 @@ export default function DashboardPage() {
   const handleActionConfirm = async (lessonId: string, action: string, data: any) => {
     // Hitta lektionen för att få tillgång till befintliga fält
     const currentLesson = allLektioner.find(l => l.id === lessonId)
-    
+
     let updates: any = {}
-    
+    let reportPayload: LessonReportPayload | null = null
+
     if (action === 'genomförd') {
+      const notes = data.lektionsanteckning || ''
+      const homework = data.läxa || ''
+
       updates = {
         'Genomförd': true,
         'Inställd': false,
         'Ombokad till': null,
-        'Läxa': data.läxa || '',
-        'Lektionsanteckning': data.lektionsanteckning || '',
+        'Läxa': homework,
+        'Lektionsanteckning': notes,
         'Anledning ombokning': null,
         'Anledning inställd': null
+      }
+
+      reportPayload = {
+        lessonId,
+        notes,
+        homework,
       }
     } else if (action === 'ombokad') {
       updates = {
@@ -189,8 +201,13 @@ export default function DashboardPage() {
         'Anledning ombokning': null
       }
     }
-    
-    await updateLessonStatus(lessonId, updates)
+
+    const wasUpdated = await updateLessonStatus(lessonId, updates)
+
+    if (wasUpdated && reportPayload) {
+      await sendLessonReportToGuardian(reportPayload)
+    }
+
     setActionState({ lessonId: null, action: null, data: {} })
   }
 
@@ -212,25 +229,28 @@ export default function DashboardPage() {
 
       if (response.ok) {
         // Uppdatera lokal state
-        setLektioner(prev => prev.map(lektion => 
-          lektion.id === lessonId 
+        setLektioner(prev => prev.map(lektion =>
+          lektion.id === lessonId
             ? { ...lektion, fields: { ...lektion.fields, ...updates } }
             : lektion
         ))
         // Uppdatera även cachade lektioner
-        setAllLektioner(prev => prev.map(lektion => 
-          lektion.id === lessonId 
+        setAllLektioner(prev => prev.map(lektion =>
+          lektion.id === lessonId
             ? { ...lektion, fields: { ...lektion.fields, ...updates } }
             : lektion
         ))
         // Stäng dropdown och reset action state efter uppdatering
         setExpandedLesson(null)
         setActionState({ lessonId: null, action: null, data: {} })
+        return true
       } else {
         console.error('Failed to update lesson')
+        return false
       }
     } catch (error) {
       console.error('Error updating lesson:', error)
+      return false
     }
   }
 
