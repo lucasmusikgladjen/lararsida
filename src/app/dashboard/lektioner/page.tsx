@@ -492,18 +492,15 @@ export default function AllaLektionerPage() {
   const scheduleActions = [
     {
       key: 'update' as const,
-      label: 'Justera upplägg/tid',
-      description: 'Ändra upplägg, veckodag eller tid för alla framtida lektioner.'
+      label: 'Justera upplägg/tid'
     },
     {
       key: 'add' as const,
-      label: 'Planera fler lektioner',
-      description: 'Skapa återkommande lektioner varje vecka fram till nästa termin.'
+      label: 'Planera fler lektioner'
     },
     {
       key: 'cancel' as const,
-      label: 'Avsluta kommande lektioner',
-      description: 'Radera alla kommande lektioner som ännu inte är genomförda.'
+      label: 'Avsluta kommande lektioner'
     }
   ]
 
@@ -671,14 +668,11 @@ export default function AllaLektionerPage() {
 
       {/* Schemaläggningshanterare */}
       {showScheduleManager && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-6 sm:items-center">
           <div className="w-full max-w-3xl rounded-xl bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Hantera lektionsschema</h2>
-                <p className="mt-1 text-sm text-gray-600">
-                  Välj vad du vill göra med en elevs kommande lektioner. Allt samlat i ett tydligt flöde.
-                </p>
               </div>
               <button
                 type="button"
@@ -702,13 +696,6 @@ export default function AllaLektionerPage() {
                   }`}
                 >
                   <span className="text-sm font-semibold sm:text-base">{action.label}</span>
-                  <span
-                    className={`mt-2 text-xs leading-snug sm:text-sm ${
-                      activeScheduleAction === action.key ? 'text-blue-900/80' : 'text-gray-500'
-                    }`}
-                  >
-                    {action.description}
-                  </span>
                 </button>
               ))}
             </div>
