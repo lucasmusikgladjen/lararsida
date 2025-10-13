@@ -334,11 +334,13 @@ export default function DashboardPage() {
     })
   }
 
+  const weekDays = getWeekDays()
+
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pb-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
+        <h1 className="mb-2 text-xl font-bold text-gray-900 sm:text-3xl">
           Välkommen tillbaka, {session?.user?.name}! 👋
         </h1>
 
@@ -353,60 +355,60 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : adminMessage ? (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-1">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+              <div className="space-y-1 text-left">
                 <span className="text-xs font-medium uppercase tracking-wide text-gray-500">📢 Meddelande från HQ</span>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
                   {adminMessage.Rubrik || 'Meddelande från administrationen'}
                 </h2>
               </div>
               {adminMessage.Datum && (
-                <span className="text-sm text-gray-700 sm:text-right">
+                <span className="text-xs font-medium text-gray-600 sm:text-sm sm:leading-6">
                   {formatDate(adminMessage.Datum)}
                 </span>
               )}
             </div>
 
-              {/* Meddelande */}
-              <div
-                className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800"
-                dangerouslySetInnerHTML={{
-                  __html: convertMarkdownLinks(adminMessage.Meddelande || 'Inget meddelande tillgängligt')
-                }}
-              />
+            {/* Meddelande */}
+            <div
+              className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800 sm:text-base"
+              dangerouslySetInnerHTML={{
+                __html: convertMarkdownLinks(adminMessage.Meddelande || 'Inget meddelande tillgängligt')
+              }}
+            />
 
-              {/* Länk/Knapp - nu över bilden */}
-              {adminMessage.Länk && (
-                <div>
-                  <a
-                    href={adminMessage.Länk}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-900 sm:w-auto"
-                  >
-                    <span>{adminMessage.Länktext || 'Läs mer'}</span>
-                    <span aria-hidden className="text-white">→</span>
-                  </a>
-                </div>
-              )}
+            {/* Länk/Knapp - nu över bilden */}
+            {adminMessage.Länk && (
+              <div className="sm:flex sm:justify-start">
+                <a
+                  href={adminMessage.Länk}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-900 sm:w-auto sm:px-4"
+                >
+                  <span>{adminMessage.Länktext || 'Läs mer'}</span>
+                  <span aria-hidden className="text-white">→</span>
+                </a>
+              </div>
+            )}
 
-              {/* Bild - nu under knappen */}
-              {adminMessage.Bild && adminMessage.Bild.length > 0 && (
-                <div className="overflow-hidden rounded-xl">
-                  <img
-                    src={adminMessage.Bild[0].url}
-                    alt="Meddelande bild"
-                    className="h-auto w-full object-cover"
-                    style={{ maxHeight: '320px' }}
-                  />
-                </div>
-              )}
+            {/* Bild - nu under knappen */}
+            {adminMessage.Bild && adminMessage.Bild.length > 0 && (
+              <div className="overflow-hidden rounded-xl">
+                <img
+                  src={adminMessage.Bild[0].url}
+                  alt="Meddelande bild"
+                  className="h-auto w-full object-cover"
+                  style={{ maxHeight: '320px' }}
+                />
+              </div>
+            )}
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-200 bg-white/70 p-6">
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-white/70 p-4 sm:p-6">
           <div className="flex flex-col items-center gap-2 text-center text-sm text-gray-500">
             <span className="text-2xl">📭</span>
             <p>Inga nya meddelanden från administrationen</p>
@@ -415,63 +417,74 @@ export default function DashboardPage() {
       )}
 
       {/* Schema */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 sm:p-6">
+      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Ditt schema</h2>
-            <p className="text-sm text-gray-500">Navigera mellan veckor och håll koll på varje lektion.</p>
+          <div className="text-center sm:text-left">
+            <h2 className="text-lg font-semibold text-gray-900 sm:text-2xl">Ditt schema</h2>
+            <p className="text-sm text-gray-500 sm:text-base">Navigera mellan veckor och håll koll på varje lektion.</p>
           </div>
 
-          <div className="flex flex-col gap-2 sm:items-end">
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
-              <button
-                onClick={() => setCurrentWeekOffset(currentWeekOffset - 1)}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={loadingLektioner}
-              >
-                ← Förra veckan
-              </button>
+          <div className="flex flex-col gap-3 sm:items-end sm:gap-4">
+            <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
+              <div className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white/70 px-3 py-2 shadow-sm backdrop-blur-sm sm:w-auto sm:px-4">
+                <button
+                  type="button"
+                  onClick={() => setCurrentWeekOffset(currentWeekOffset - 1)}
+                  className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-40 sm:h-10 sm:w-10"
+                  aria-label="Visa föregående vecka"
+                  disabled={loadingLektioner}
+                >
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12.5 5L7.5 10L12.5 15" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
 
-              <div className="min-w-[180px] rounded-lg bg-gray-100 px-3 py-2 text-center">
-                <div className="text-sm font-semibold text-gray-900">{getWeekTitle()}</div>
-                <div className="text-xs text-gray-600">
-                  {getWeekDays()[0].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} – {getWeekDays()[6].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
+                <div className="flex min-w-0 flex-1 flex-col text-center sm:min-w-[220px]">
+                  <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Veckoöversikt</span>
+                  <span className="text-sm font-semibold text-gray-900 sm:text-base">{getWeekTitle()}</span>
+                  <span className="text-xs text-gray-600 sm:text-sm">
+                    {weekDays[0].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} – {weekDays[6].toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
+                  </span>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentWeekOffset(currentWeekOffset + 1)}
+                  className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-40 sm:h-10 sm:w-10"
+                  aria-label="Visa nästa vecka"
+                  disabled={loadingLektioner}
+                >
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M7.5 5L12.5 10L7.5 15" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
               </div>
 
-              <button
-                onClick={() => setCurrentWeekOffset(currentWeekOffset + 1)}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={loadingLektioner}
-              >
-                Nästa vecka →
-              </button>
-            </div>
+              {currentWeekOffset !== 0 && (
+                <button
+                  onClick={() => {
+                    // Hitta vilken vecka som innehåller idag
+                    const today = new Date()
+                    let testOffset = 0
 
-            {currentWeekOffset !== 0 && (
-              <button
-                onClick={() => {
-                  // Hitta vilken vecka som innehåller idag
-                  const today = new Date()
-                  let testOffset = 0
-
-                  // Testa olika offsets för att hitta veckan som innehåller idag
-                  for (let i = -10; i <= 10; i++) {
-                    const testDays = getWeekDaysForOffset(i)
-                    if (testDays.some(day => day.toDateString() === today.toDateString())) {
-                      testOffset = i
-                      break
+                    // Testa olika offsets för att hitta veckan som innehåller idag
+                    for (let i = -10; i <= 10; i++) {
+                      const testDays = getWeekDaysForOffset(i)
+                      if (testDays.some(day => day.toDateString() === today.toDateString())) {
+                        testOffset = i
+                        break
+                      }
                     }
-                  }
 
-                  setCurrentWeekOffset(testOffset)
-                }}
-                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={loadingLektioner}
-              >
-                Gå till denna vecka
-              </button>
-            )}
+                    setCurrentWeekOffset(testOffset)
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
+                  disabled={loadingLektioner}
+                >
+                  <span>Hoppa till denna vecka</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
         
@@ -482,16 +495,16 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {getWeekDays().map((day, index) => {
+            {weekDays.map((day, index) => {
               const dayLektioner = getLektionerForDate(day)
               const isToday = day.toDateString() === new Date().toDateString()
               
               return (
-                <div key={index} className={`rounded-xl border p-4 shadow-sm transition ${isToday ? 'border-gray-300 bg-gray-50/80' : 'border-gray-200 bg-white'}`}>
+                <div key={index} className={`rounded-xl border p-3 shadow-sm transition sm:p-4 ${isToday ? 'border-gray-300 bg-gray-50/80' : 'border-gray-200 bg-white'}`}>
                   <div className="mb-3">
-                    <h3 className={`font-medium ${isToday ? 'text-gray-900' : 'text-gray-900'}`}>
+                    <h3 className={`text-base font-medium capitalize sm:text-lg ${isToday ? 'text-gray-900' : 'text-gray-900'}`}>
                       {day.toLocaleDateString('sv-SE', { weekday: 'long', month: 'long', day: 'numeric' })}
-                      {isToday && <span className="ml-2 text-sm text-gray-500">(Idag)</span>}
+                      {isToday && <span className="ml-2 text-xs text-gray-500 sm:text-sm">(Idag)</span>}
                     </h3>
                   </div>
 
@@ -597,7 +610,7 @@ export default function DashboardPage() {
                                               action: 'genomförd',
                                               data: {}
                                             })}
-                                            className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-green-700"
+                                            className="w-full rounded-lg bg-green-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-700 sm:px-4 sm:py-3"
                                           >
                                             ✅ Genomförd
                                           </button>
@@ -608,7 +621,7 @@ export default function DashboardPage() {
                                               action: 'ombokad', 
                                               data: {} 
                                             })}
-                                            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+                                            className="w-full rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 sm:px-4 sm:py-3"
                                           >
                                             📅 Boka om
                                           </button>
@@ -619,7 +632,7 @@ export default function DashboardPage() {
                                               action: 'inställd', 
                                               data: {} 
                                             })}
-                                            className="w-full rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-red-700"
+                                            className="w-full rounded-lg bg-red-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red-700 sm:px-4 sm:py-3"
                                           >
                                             ❌ Ställ in
                                           </button>
@@ -666,13 +679,13 @@ export default function DashboardPage() {
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'genomförd', actionState.data)}
                                             disabled={!actionState.data.lektionsanteckning}
-                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="rounded-md bg-green-600 px-3 py-2 text-sm text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                                           >
                                             Bekräfta genomförd
                                           </button>
                                           <button
                                             onClick={resetActionState}
-                                            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                            className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                                           >
                                             Avbryt
                                           </button>
@@ -733,13 +746,13 @@ export default function DashboardPage() {
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'ombokad', actionState.data)}
                                             disabled={!actionState.data.datum || !actionState.data.anledning}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                                           >
                                             Bekräfta ombokning
                                           </button>
                                           <button
                                             onClick={resetActionState}
-                                            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                            className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                                           >
                                             Avbryt
                                           </button>
@@ -840,13 +853,13 @@ export default function DashboardPage() {
                                           <button
                                             onClick={() => handleActionConfirm(lektion.id, 'inställd', actionState.data)}
                                             disabled={!actionState.data.anledning || !actionState.data.vemStällerIn}
-                                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="rounded-md bg-red-600 px-3 py-2 text-sm text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                                           >
                                             Bekräfta inställning
                                           </button>
                                           <button
                                             onClick={resetActionState}
-                                            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                            className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                                           >
                                             Avbryt
                                           </button>

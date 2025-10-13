@@ -428,21 +428,21 @@ export default function AllaLektionerPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Header med knappar */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Alla lektioner</h1>
-          <div className="flex space-x-3">
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Alla lektioner</h1>
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={() => setShowNewLessonsForm(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 sm:w-auto sm:px-4 sm:text-base"
             >
               Schemalägg lektion
             </button>
             <button
               onClick={() => setShowBulkDelete(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              className="w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 sm:w-auto sm:px-4 sm:text-base"
             >
               Ta bort schemalagd lektionstid
             </button>
@@ -450,7 +450,7 @@ export default function AllaLektionerPage() {
         </div>
 
         {/* Filter */}
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
           {[
             { key: 'tidigare', label: 'Tidigare' },
             { key: 'kommande', label: 'Kommande' },
@@ -461,7 +461,7 @@ export default function AllaLektionerPage() {
             <button
               key={filterOption.key}
               onClick={() => setFilter(filterOption.key)}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors sm:text-base ${
                 filter === filterOption.key
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -475,9 +475,9 @@ export default function AllaLektionerPage() {
 
       {/* Skapa ny lektionstid modal */}
       {showNewLessonsForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Schemalägg ny lektionstid</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
+            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Schemalägg ny lektionstid</h2>
             
             <div className="space-y-4">
               <div>
@@ -525,11 +525,11 @@ export default function AllaLektionerPage() {
               </div>
             </div>
             
-            <div className="flex space-x-3 mt-6">
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
                 onClick={createRecurringLessons}
                 disabled={newLessonsForm.loading}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+                className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
               >
                 {newLessonsForm.loading ? 'Schemalägg...' : 'Schemalägg lektioner'}
               </button>
@@ -538,7 +538,7 @@ export default function AllaLektionerPage() {
                   setShowNewLessonsForm(false)
                   setNewLessonsForm({ elevId: '', weekday: '', time: '', loading: false })
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
               >
                 Avbryt
               </button>
@@ -549,9 +549,9 @@ export default function AllaLektionerPage() {
 
       {/* Bulk delete modal */}
       {showBulkDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Ta bort schemalagd lektionstid</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
+            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Ta bort schemalagd lektionstid</h2>
             
             <div className="space-y-4">
               <div>
@@ -582,11 +582,11 @@ export default function AllaLektionerPage() {
               </div>
             </div>
             
-            <div className="flex space-x-3 mt-6">
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
                 onClick={bulkDeleteLessons}
                 disabled={bulkDeleteForm.loading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
               >
                 {bulkDeleteForm.loading ? 'Tar bort...' : 'Ta bort lektionstider'}
               </button>
@@ -595,7 +595,7 @@ export default function AllaLektionerPage() {
                   setShowBulkDelete(false)
                   setBulkDeleteForm({ elevId: '', loading: false })
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
               >
                 Avbryt
               </button>
@@ -611,43 +611,46 @@ export default function AllaLektionerPage() {
             const status = getLektionStatus(lektion)
             const elevId = Array.isArray(lektion.fields.Elev) ? lektion.fields.Elev[0] : lektion.fields.Elev
             const elevNamn = getStudentName(elevId)
-            
+
             return (
-              <div key={lektion.id} className="bg-white rounded-lg shadow-sm">
-                <div 
-                  className={`p-4 border rounded-t-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                    expandedLesson === lektion.id 
-                      ? 'border-b-0 ' + status.color + ' rounded-b-none'
-                      : status.color + ' rounded-b-lg'
-                  }`}
+              <div key={lektion.id} className="space-y-0">
+                <div
+                  className={`cursor-pointer rounded-t-xl border p-3 transition-shadow hover:shadow-md sm:p-4 ${
+                    expandedLesson === lektion.id
+                      ? 'border-b-0 ' + status.color
+                      : status.color
+                  } ${expandedLesson === lektion.id ? 'rounded-b-none' : 'rounded-b-xl'}`}
                   onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium text-lg">{elevNamn}</span>
-                      <span className="font-medium">{formatDate(lektion.fields.Datum)}</span>
-                      <span className="text-sm text-gray-500">{lektion.fields.Klockslag}</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color.replace('border-', '')}`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="text-base font-semibold text-gray-900 sm:text-lg">{elevNamn}</span>
+                        <span className="text-sm text-gray-600 sm:text-base">{formatDate(lektion.fields.Datum)}</span>
+                        {lektion.fields.Klockslag && (
+                          <span className="text-xs text-gray-500 sm:text-sm">{lektion.fields.Klockslag}</span>
+                        )}
+                      </div>
+                      {lektion.fields['Anledning ombokning'] && (
+                        <p className="text-sm text-gray-600">
+                          Ombokad från ursprungligt datum – Anledning: {lektion.fields['Anledning ombokning']}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 sm:justify-end">
+                      <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 shadow-sm">
                         {status.status}
                       </span>
-                    </div>
-                    <span className="text-gray-400 text-sm">
-                      {expandedLesson === lektion.id ? '▼' : '▶'}
-                    </span>
-                  </div>
-                  
-                  {lektion.fields['Anledning ombokning'] && (
-                    <div className="mt-2">
-                      <span className="text-sm text-gray-600">
-                        Ombokad från ursprungligt datum - Anledning: {lektion.fields['Anledning ombokning']}
+                      <span className="text-sm text-gray-400">
+                        {expandedLesson === lektion.id ? '▼' : '▶'}
                       </span>
                     </div>
-                  )}
+                  </div>
                 </div>
-                
+
                 {/* Dropdown content */}
                 {expandedLesson === lektion.id && (
-                  <div className={`bg-white border border-t-0 rounded-b-lg p-4 shadow-sm ${
+                  <div className={`rounded-b-xl border border-t-0 bg-white p-4 shadow-sm sm:p-5 ${
                     status.status === 'genomförd' ? 'border-green-200' :
                     status.status === 'inställd' ? 'border-red-200' :
                     status.status === 'ombokad' ? 'border-yellow-200' :
@@ -696,36 +699,36 @@ export default function AllaLektionerPage() {
                         {/* Huvudknappar - bara för planerade lektioner */}
                         {actionState.lessonId !== lektion.id && (
                           <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
                               <button
-                                onClick={() => setActionState({ 
-                                  lessonId: lektion.id, 
-                                  action: 'genomförd', 
-                                  data: {} 
+                                onClick={() => setActionState({
+                                  lessonId: lektion.id,
+                                  action: 'genomförd',
+                                  data: {}
                                 })}
-                                className="px-4 py-3 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+                                className="rounded-md bg-green-600 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-700 sm:px-4 sm:py-3"
                               >
                                 ✅ Genomförd
                               </button>
-                              
+
                               <button
                                 onClick={() => setActionState({ 
                                   lessonId: lektion.id, 
                                   action: 'ombokad', 
                                   data: {} 
                                 })}
-                                className="px-4 py-3 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                                className="rounded-md bg-blue-600 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:px-4 sm:py-3"
                               >
                                 📅 Boka om
                               </button>
-                              
+
                               <button
                                 onClick={() => setActionState({ 
                                   lessonId: lektion.id, 
                                   action: 'inställd', 
                                   data: {} 
                                 })}
-                                className="px-3 py-3 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                                className="rounded-md bg-red-600 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:px-4 sm:py-3"
                               >
                                 ❌ Ställ in
                               </button>
@@ -773,17 +776,17 @@ export default function AllaLektionerPage() {
                             </div>
 
                             {/* Bekräfta & Avbryt */}
-                            <div className="flex space-x-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                               <button
                                 onClick={() => handleActionConfirm(lektion.id, 'genomförd', actionState.data)}
                                 disabled={!actionState.data.lektionsanteckning}
-                                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-md bg-green-600 px-3 py-2 text-sm text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                               >
                                 Bekräfta genomförd
                               </button>
                               <button
                                 onClick={resetActionState}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                               >
                                 Avbryt
                               </button>
@@ -840,17 +843,17 @@ export default function AllaLektionerPage() {
                                 />
                               </div>
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                               <button
                                 onClick={() => handleActionConfirm(lektion.id, 'ombokad', actionState.data)}
                                 disabled={!actionState.data.datum || !actionState.data.anledning}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                               >
                                 Bekräfta ombokning
                               </button>
                               <button
                                 onClick={resetActionState}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                               >
                                 Avbryt
                               </button>
@@ -862,14 +865,12 @@ export default function AllaLektionerPage() {
                         {actionState.lessonId === lektion.id && actionState.action === 'inställd' && (
                           <div className="space-y-4">
                             {/* Varningstext */}
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                              <div className="flex">
-                                <div className="flex-shrink-0">
-                                  <span className="text-yellow-400">⚠️</span>
-                                </div>
-                                <div className="ml-3">
+                            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 sm:p-4">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                                <div className="text-lg sm:text-xl">⚠️</div>
+                                <div>
                                   <h4 className="text-sm font-medium text-yellow-800">Prova dessa alternativ först:</h4>
-                                  <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside space-y-1">
+                                  <ul className="mt-2 list-disc space-y-1 text-sm text-yellow-700 sm:ml-4">
                                     <li>Boka om till ett annat datum</li>
                                     <li>Kör dubbellektion nästa gång</li>
                                     <li>Lägg in en extralektion under lov eller helg</li>
@@ -949,17 +950,17 @@ export default function AllaLektionerPage() {
                                 />
                               </div>
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                               <button
                                 onClick={() => handleActionConfirm(lektion.id, 'inställd', actionState.data)}
                                 disabled={!actionState.data.anledning || !actionState.data.vemStällerIn}
-                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-md bg-red-600 px-3 py-2 text-sm text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                               >
                                 Bekräfta inställning
                               </button>
                               <button
                                 onClick={resetActionState}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                                className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                               >
                                 Avbryt
                               </button>
@@ -974,11 +975,11 @@ export default function AllaLektionerPage() {
             )
           })
         ) : (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <span className="text-4xl mb-4 block">📅</span>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Inga lektioner hittades</h3>
+          <div className="rounded-2xl border border-gray-200 bg-white/80 p-6 text-center shadow-sm ring-1 ring-gray-100 sm:p-10">
+            <span className="mb-4 block text-3xl sm:text-4xl">📅</span>
+            <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">Inga lektioner hittades</h3>
             <p className="text-gray-500">
-              {filter === 'alla' 
+              {filter === 'alla'
                 ? 'Du har inga lektioner registrerade ännu.'
                 : `Inga lektioner matchar filtret "${filter}".`
               }
