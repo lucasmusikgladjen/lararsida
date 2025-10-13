@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 
+import { MAX_FILE_SIZE_BYTES, fileToBase64 } from '@/lib/client/files'
+
 export default function ElevPage() {
   const { elevId } = useParams()
   const { data: session } = useSession()
@@ -146,18 +148,34 @@ export default function ElevPage() {
     const file = event.target.files?.[0]
     if (!file) return
 
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setStatusMessage({
+        type: 'error',
+        message: 'Filen är för stor. Maxstorlek är 5 MB.',
+      })
+      event.target.value = ''
+      return
+    }
+
     try {
       setUploadingFile(true)
       setStatusMessage(null)
 
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('field', 'Lärandematerial')
-      formData.append('teacherId', elevId as string) // Använder elevId som "teacherId" för eleven
+      const base64 = await fileToBase64(file)
 
-      const response = await fetch('http://localhost:4000/upload', {
+      const response = await fetch('/api/airtable/upload', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recordType: 'student',
+          recordId: elevId as string,
+          field: 'Lärandematerial',
+          fileName: file.name,
+          contentType: file.type || 'application/octet-stream',
+          base64,
+        }),
       })
 
       const result = await response.json()
