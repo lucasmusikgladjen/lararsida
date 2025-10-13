@@ -180,35 +180,35 @@ export default function ProfilPage() {
     )
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status */}
       {statusMessage && (
         <div
-          className={`rounded-lg p-4 border ${
+          className={`rounded-lg border p-3 sm:p-4 ${
             statusMessage.type === 'success'
               ? 'bg-green-50 border-green-200 text-green-800'
               : 'bg-red-50 border-red-200 text-red-800'
           }`}
         >
-          <div className="flex items-center">
-            <span className="mr-2">{statusMessage.type === 'success' ? '✅' : '❌'}</span>
+          <div className="flex items-center gap-2 text-sm sm:text-base">
+            <span>{statusMessage.type === 'success' ? '✅' : '❌'}</span>
             {statusMessage.message}
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex items-center gap-3 sm:gap-4">
           <div className="relative">
             {profile.fields.Profilbild?.[0]?.url ? (
               <img
                 src={profile.fields.Profilbild[0].url}
                 alt="Profilbild"
-                className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+                className="h-16 w-16 rounded-full border-4 border-gray-200 object-cover sm:h-20 sm:w-20"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-500 text-xl font-bold text-white sm:h-20 sm:w-20 sm:text-2xl">
                 {profile.fields.Namn?.[0] || '?'}
               </div>
             )}
@@ -228,18 +228,18 @@ export default function ProfilPage() {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{profile.fields.Namn}</h1>
-            <p className="text-gray-600">
+            <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">{profile.fields.Namn}</h1>
+            <p className="text-sm text-gray-600 sm:text-base">
               {profile.fields.Instrument || 'Instrument ej angivet'}
             </p>
           </div>
         </div>
         {editMode ? (
-          <div className="flex space-x-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={saveProfile}
               disabled={saving}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+              className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
             >
               {saving ? 'Sparar...' : 'Spara'}
             </button>
@@ -261,7 +261,7 @@ export default function ProfilPage() {
                   'Önskat antal elever': profile.fields['Önskat antal elever'] || 0,
                 })
               }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+              className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
             >
               Avbryt
             </button>
@@ -269,7 +269,7 @@ export default function ProfilPage() {
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+            className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
           >
             Redigera profil
           </button>
@@ -277,25 +277,25 @@ export default function ProfilPage() {
       </div>
 
       {/* Personuppgifter */}
-      <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             {saving ? 'Sparar...' : 'Spara'}
           </button>
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             Redigera
           </button>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Personuppgifter</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Namn</label>
@@ -422,24 +422,24 @@ export default function ProfilPage() {
       </div>
 
       {/* Löneuppgifter */}
-      <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             {saving ? 'Sparar...' : 'Spara'}
           </button>
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             Redigera
           </button>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Löneuppgifter</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Löneuppgifter</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Timlön</label>
@@ -490,36 +490,36 @@ export default function ProfilPage() {
 
 
       {/* Elever */}
-      <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             {saving ? 'Sparar...' : 'Spara'}
           </button>
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             Redigera
           </button>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Elever</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
           {/* Nuvarande */}
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-500">Nuvarande elever</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">
+          <div className="rounded-lg border border-gray-200 p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Nuvarande elever</p>
+            <p className="mt-1 text-2xl font-bold text-green-600 sm:text-3xl">
               {profile.fields.Elever?.length || 0}
             </p>
           </div>
           {/* Pågående ansökningar */}
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-500">Pågående ansökningar</p>
-            <p className="mt-1 text-2xl font-bold text-yellow-600">
+          <div className="rounded-lg border border-gray-200 p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Pågående ansökningar</p>
+            <p className="mt-1 text-2xl font-bold text-yellow-600 sm:text-3xl">
               {profile.fields.Önskar?.length || 0}
             </p>
           </div>
@@ -529,7 +529,7 @@ export default function ProfilPage() {
               editMode ? 'border-2 border-blue-500' : 'border border-gray-200'
             }`}
           >
-            <p className="text-sm text-gray-500">Önskat antal elever</p>
+            <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Önskat antal elever</p>
             {editMode ? (
               <input
                 type="number"
@@ -541,37 +541,37 @@ export default function ProfilPage() {
                     'Önskat antal elever': parseInt(e.target.value) || 0,
                   }))
                 }
-                className="mt-1 w-full text-2xl font-bold focus:outline-none"
+                className="mt-1 w-full text-2xl font-bold focus:outline-none sm:text-3xl"
               />
             ) : (
-              <p className="mt-1 text-2xl font-bold text-blue-600">
+              <p className="mt-1 text-2xl font-bold text-blue-600 sm:text-3xl">
                 {profile.fields['Önskat antal elever'] || 0}
               </p>
             )}
           </div>
         </div>
-        <div className="mt-6 pt-4 border-t">
-          <p className="text-sm text-gray-500">Fast månadslön</p>
-          <p className="mt-1 text-lg font-semibold text-green-600">
+        <div className="mt-6 border-t pt-4">
+          <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Fast månadslön</p>
+          <p className="mt-1 text-lg font-semibold text-green-600 sm:text-xl">
             {calculateTimlön() * 4 * (profile.fields.Elever?.length || 0)} kr/månad
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 sm:text-sm">
             (Timlön × 4 timmar × {profile.fields.Elever?.length || 0} elever)
           </p>
         </div>
         {editMode &&
           editForm['Önskat antal elever'] !== (profile.fields.Elever?.length || 0) && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-sm text-gray-500">
+            <div className="mt-4 border-t pt-4">
+              <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">
                 Beräknad månadslön vid önskat antal
               </p>
-              <p className="mt-1 text-base font-medium text-blue-600">
+              <p className="mt-1 text-base font-medium text-blue-600 sm:text-lg">
                 {calculateTimlön() *
                   4 *
                   (editForm['Önskat antal elever'] || 0)}{' '}
                 kr/månad
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 sm:text-sm">
                 (Timlön × 4 timmar × {editForm['Önskat antal elever'] || 0}{' '}
                 elever)
               </p>
@@ -580,70 +580,69 @@ export default function ProfilPage() {
       </div>
 
       {/* Biografi */}
-      <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             {saving ? 'Sparar...' : 'Spara'}
           </button>
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             Redigera
           </button>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Biografi</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
         {editMode ? (
           <textarea
             value={editForm.Biografi}
             onChange={(e) =>
               setEditForm(prev => ({ ...prev, Biografi: e.target.value }))
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={6}
+            className="h-40 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Berätta om dig själv…"
           />
         ) : (
-          <div className="bg-gray-50 p-4 rounded-md">
+          <div className="rounded-md bg-gray-50 p-4">
             {profile.fields.Biografi ? (
-              <p className="text-gray-900 whitespace-pre-wrap">
+              <p className="whitespace-pre-wrap text-sm text-gray-900 sm:text-base">
                 {profile.fields.Biografi}
               </p>
             ) : (
-              <p className="text-gray-500 italic">Ingen biografi skriven än</p>
+              <p className="text-sm italic text-gray-500">Ingen biografi skriven än</p>
             )}
           </div>
         )}
       </div>
 
       {/* Dokument */}
-      <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="relative rounded-lg bg-white p-4 shadow-sm sm:p-6">
         {editMode ? (
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             {saving ? 'Sparar...' : 'Spara'}
           </button>
         ) : (
           <button
             onClick={() => setEditMode(true)}
-            className="absolute top-4 right-4 bg-gray-500 text-white text-sm px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
+            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
           >
             Redigera
           </button>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Dokument</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
           {/* Avtal */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Avtal</h3>
+            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">Avtal</h3>
             {profile.fields.Avtal?.length ? (
               <div className="space-y-2">
                 {profile.fields.Avtal.map((file, idx) => (
@@ -652,17 +651,17 @@ export default function ProfilPage() {
                     href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
                   >
-                    <span className="mr-2">📄</span>
-                    <span className="text-sm truncate">
+                    <span>📄</span>
+                    <span className="truncate">
                       {file.filename}
                     </span>
                   </a>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">Inget avtal uppladdat</p>
+              <p className="text-sm text-gray-500">Inget avtal uppladdat</p>
             )}
             {editMode && (
               <div className="mt-3">
@@ -674,7 +673,7 @@ export default function ProfilPage() {
                     onChange={(e) => handleFileUpload(e, 'Avtal')}
                     disabled={uploadingFile === 'Avtal'}
                   />
-                  <span className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                  <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">
                     {uploadingFile === 'Avtal'
                       ? 'Laddar upp...'
                       : 'Ladda upp avtal'}
@@ -685,7 +684,7 @@ export default function ProfilPage() {
           </div>
           {/* Jämkning */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Jämkning</h3>
+            <h3 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">Jämkning</h3>
             {profile.fields.Jämkning?.length ? (
               <div className="space-y-2">
                 {profile.fields.Jämkning.map((file, idx) => (
@@ -694,17 +693,17 @@ export default function ProfilPage() {
                     href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
                   >
-                    <span className="mr-2">📄</span>
-                    <span className="text-sm truncate">
+                    <span>📄</span>
+                    <span className="truncate">
                       {file.filename}
                     </span>
                   </a>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">Ingen jämkning uppladdat</p>
+              <p className="text-sm text-gray-500">Ingen jämkning uppladdat</p>
             )}
             {editMode && (
               <div className="mt-3">
@@ -716,7 +715,7 @@ export default function ProfilPage() {
                     onChange={(e) => handleFileUpload(e, 'Jämkning')}
                     disabled={uploadingFile === 'Jämkning'}
                   />
-                  <span className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                  <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">
                     {uploadingFile === 'Jämkning'
                       ? 'Laddar upp...'
                       : 'Ladda upp jämkning'}

@@ -281,110 +281,108 @@ export default function ElevPage() {
   const displayedLektioner = showAllLessons ? lektioner : lektioner.slice(0, 3)
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status Messages */}
       {statusMessage && (
-        <div className={`rounded-lg p-4 ${
-          statusMessage.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
-            : 'bg-red-50 border border-red-200 text-red-800'
+        <div className={`rounded-lg border p-3 sm:p-4 ${
+          statusMessage.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
         }`}>
-          <div className="flex items-center">
-            <span className="mr-2">
-              {statusMessage.type === 'success' ? '✅' : '❌'}
-            </span>
+          <div className="flex items-center gap-2 text-sm sm:text-base">
+            <span>{statusMessage.type === 'success' ? '✅' : '❌'}</span>
             {statusMessage.message}
           </div>
         </div>
       )}
 
       {/* Elevinfo och Vårdnadshavare */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
         {/* Elevinfo */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+          <h1 className="mb-4 text-xl font-bold text-gray-900 sm:text-3xl">
             {elev.Namn}
           </h1>
           <div className="space-y-3">
-            <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-500 w-20">Ålder:</span>
-              <span className="text-gray-900">
+            <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Ålder:</span>
+              <span className="text-sm text-gray-900 sm:text-base">
                 {elev.Födelseår ? calculateAge(elev.Födelseår) : 'Okänd'} år
               </span>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-500 w-20">Instrument:</span>
-              <span className="text-gray-900">{elev.Instrument || 'Inte angivet'}</span>
+            <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Instrument:</span>
+              <span className="text-sm text-gray-900 sm:text-base">{elev.Instrument || 'Inte angivet'}</span>
             </div>
           </div>
         </div>
 
         {/* Vårdnadshavare */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
             Vårdnadshavare
           </h2>
           {vårdnadshavare ? (
             <div className="space-y-3">
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-500 w-20">Namn:</span>
-                <span className="text-gray-900">{vårdnadshavare.Namn}</span>
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Namn:</span>
+                <span className="text-sm text-gray-900 sm:text-base">{vårdnadshavare.Namn}</span>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-500 w-20">Adress:</span>
-                <span className="text-gray-900">
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Adress:</span>
+                <span className="text-sm text-gray-900 sm:text-base">
                   {vårdnadshavare.Gata} {vårdnadshavare.Gatunummer}, {vårdnadshavare.Ort}
                 </span>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-500 w-20">E-post:</span>
-                <a href={`mailto:${vårdnadshavare['E-post']}`} className="text-blue-600 hover:text-blue-800">
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">E-post:</span>
+                <a href={`mailto:${vårdnadshavare['E-post']}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
                   {vårdnadshavare['E-post']}
                 </a>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-500 w-20">Telefon:</span>
-                <a href={`tel:${vårdnadshavare.Telefon}`} className="text-blue-600 hover:text-blue-800">
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Telefon:</span>
+                <a href={`tel:${vårdnadshavare.Telefon}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
                   {vårdnadshavare.Telefon}
                 </a>
               </div>
             </div>
           ) : (
-            <p className="text-gray-500">Ingen vårdnadshavare registrerad</p>
+            <p className="text-sm text-gray-500">Ingen vårdnadshavare registrerad</p>
           )}
         </div>
       </div>
 
       {/* Nästa planerade lektion */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
           Nästa planerade lektion
         </h2>
-        
+
         {nextLesson ? (
-          <div className={`p-4 rounded-lg border border-blue-200 bg-blue-50`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-3">
-                <span className="font-medium text-blue-900">{formatDate(nextLesson.fields.Datum)}</span>
+          <div className={`rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4`}>
+            <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="font-medium text-blue-900 sm:text-lg">{formatDate(nextLesson.fields.Datum)}</span>
                 <span className="text-sm text-blue-700">{nextLesson.fields.Klockslag}</span>
                 {nextLesson.fields['Anledning ombokning'] && (
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <span className="rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-800">
                     Ombokad
                   </span>
                 )}
               </div>
               <button
-                onClick={() => setActionState({ 
-                  lessonId: nextLesson.id, 
-                  action: 'ombokad', 
-                  data: {} 
+                onClick={() => setActionState({
+                  lessonId: nextLesson.id,
+                  action: 'ombokad',
+                  data: {}
                 })}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
               >
                 📅 Boka om
               </button>
             </div>
-            
+
             {nextLesson.fields['Anledning ombokning'] && (
               <div className="mt-2">
                 <span className="text-sm text-blue-700">
@@ -402,8 +400,8 @@ export default function ElevPage() {
             
             {/* Ombokning bekräftelse */}
             {actionState.lessonId === nextLesson.id && actionState.action === 'ombokad' && (
-              <div className="mt-4 p-4 bg-white rounded-md border border-blue-300">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Boka om lektion</h4>
+              <div className="mt-4 rounded-md border border-blue-300 bg-white p-4 sm:p-5">
+                <h4 className="mb-3 text-sm font-medium text-gray-700">Boka om lektion</h4>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -411,7 +409,7 @@ export default function ElevPage() {
                     </label>
                     <input
                       type="date"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       onChange={(e) => setActionState(prev => ({
                         ...prev,
                         data: { ...prev.data, datum: e.target.value }
@@ -424,14 +422,14 @@ export default function ElevPage() {
                     </label>
                     <input
                       type="time"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder={nextLesson.fields.Klockslag || 'Behåll nuvarande tid'}
                       onChange={(e) => setActionState(prev => ({
                         ...prev,
                         data: { ...prev.data, tid: e.target.value }
                       }))}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="mt-1 text-xs text-gray-500">
                       Lämna tom för att behålla nuvarande tid ({nextLesson.fields.Klockslag || 'ingen tid angiven'})
                     </p>
                   </div>
@@ -440,7 +438,7 @@ export default function ElevPage() {
                       Anledning för ombokning:
                     </label>
                     <textarea
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={2}
                       placeholder=""
                       onChange={(e) => setActionState(prev => ({
@@ -450,17 +448,17 @@ export default function ElevPage() {
                     />
                   </div>
                 </div>
-                <div className="flex space-x-2 mt-3">
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
                   <button
                     onClick={() => handleActionConfirm(nextLesson.id, 'ombokad', actionState.data)}
                     disabled={!actionState.data.datum || !actionState.data.anledning}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                   >
                     Bekräfta ombokning
                   </button>
                   <button
                     onClick={resetActionState}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm"
+                    className="rounded-md bg-gray-500 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
                   >
                     Avbryt
                   </button>
@@ -469,8 +467,8 @@ export default function ElevPage() {
             )}
           </div>
         ) : (
-          <div className="text-center py-6 text-gray-500">
-            <span className="text-4xl">📅</span>
+          <div className="py-5 text-center text-gray-500">
+            <span className="text-3xl sm:text-4xl">📅</span>
             <p className="mt-2">Inga framtida lektioner planerade</p>
             <p className="text-sm text-gray-400">Kontakta administratören för att boka nästa lektion</p>
           </div>
@@ -478,47 +476,47 @@ export default function ElevPage() {
       </div>
 
       {/* Senaste lektioner */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">
           Senaste genomförda lektioner
         </h2>
-        
+
         {lektioner.length > 0 ? (
           <div className="space-y-2">
             {displayedLektioner.map((lektion) => {
               return (
                 <div key={lektion.id} className="space-y-0">
-                  <div 
-                    className={`p-4 rounded-t-lg border cursor-pointer hover:bg-gray-50 transition-colors bg-green-100 text-green-800 border-green-200 ${
+                  <div
+                    className={`cursor-pointer rounded-t-lg border border-green-200 bg-green-100 p-3 text-green-800 transition-colors hover:bg-green-100/80 sm:p-4 ${
                       expandedLesson === lektion.id ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
                     }`}
                     onClick={() => setExpandedLesson(expandedLesson === lektion.id ? null : lektion.id)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="font-medium">{formatDate(lektion.fields.Datum)}</span>
-                        <span className="text-sm text-gray-500">{lektion.fields.Klockslag}</span>
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="font-medium text-gray-900 sm:text-lg">{formatDate(lektion.fields.Datum)}</span>
+                        <span className="text-sm text-gray-700">{lektion.fields.Klockslag}</span>
+                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
                           Genomförd
                         </span>
                       </div>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-sm text-gray-500">
                         {expandedLesson === lektion.id ? '▼' : '▶'}
                       </span>
                     </div>
-                    
+
                     {lektion.fields['Anledning ombokning'] && (
                       <div className="mt-2">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-700">
                           Ombokad från ursprungligt datum - Anledning: {lektion.fields['Anledning ombokning']}
                         </span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Dropdown content - bara visa information */}
                   {expandedLesson === lektion.id && (
-                    <div className="bg-white border border-t-0 border-gray-200 rounded-b-lg p-4">
+                    <div className="rounded-b-lg border border-t-0 border-gray-200 bg-white p-4 sm:p-5">
                       <div className="space-y-3">
                         {lektion.fields.Lektionsanteckning && (
                           <div>
@@ -551,34 +549,34 @@ export default function ElevPage() {
             {lektioner.length > 3 && !showAllLessons && (
               <button
                 onClick={() => setShowAllLessons(true)}
-                className="w-full py-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                className="w-full rounded-md border border-blue-200 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50"
               >
                 Visa alla {lektioner.length} genomförda lektioner
               </button>
             )}
-            
+
             {showAllLessons && lektioner.length > 3 && (
               <button
                 onClick={() => setShowAllLessons(false)}
-                className="w-full py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
               >
                 Visa färre
               </button>
             )}
           </div>
         ) : (
-          <p className="text-gray-500">Inga genomförda lektioner registrerade än</p>
+          <p className="text-sm text-gray-500">Inga genomförda lektioner registrerade än</p>
         )}
       </div>
 
       {/* Terminsmål */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Terminsmål</h2>
+      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Terminsmål</h2>
           <button
             onClick={saveTerminsmål}
             disabled={savingTerminsmål}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-4 sm:text-base"
           >
             {savingTerminsmål ? 'Sparar...' : 'Spara'}
           </button>
@@ -587,18 +585,17 @@ export default function ElevPage() {
           value={terminsmål}
           onChange={(e) => setTerminsmål(e.target.value)}
           placeholder="Skriv terminsmål för eleven här..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          rows={4}
+          className="h-32 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
       {/* Lärandematerial */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+      <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
             Lärandematerial
           </h2>
-          
+
           {/* Ladda upp knapp */}
           <div className="relative">
             <input
@@ -611,36 +608,34 @@ export default function ElevPage() {
             />
             <label
               htmlFor="file-upload"
-              className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors cursor-pointer ${
-                uploadingFile ? 'opacity-50 cursor-not-allowed' : ''
+              className={`inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 ${
+                uploadingFile ? 'cursor-not-allowed opacity-50' : ''
               }`}
             >
               {uploadingFile ? 'Laddar upp...' : '📎 Ladda upp fil'}
             </label>
           </div>
         </div>
-        
+
         {elev.Lärandematerial && elev.Lärandematerial.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {elev.Lärandematerial.map((file: any, index: number) => (
               <a
                 key={index}
                 href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50"
               >
-                <div className="flex-shrink-0 mr-3">
-                  <span className="text-2xl">
-                    {file.type?.includes('image') ? '🖼️' : 
-                     file.type?.includes('pdf') ? '📄' : 
-                     file.type?.includes('audio') ? '🎵' : 
-                     file.type?.includes('video') ? '🎬' :
-                     '📁'}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                <span className="text-2xl">
+                  {file.type?.includes('image') ? '🖼️' :
+                   file.type?.includes('pdf') ? '📄' :
+                   file.type?.includes('audio') ? '🎵' :
+                   file.type?.includes('video') ? '🎬' :
+                   '📁'}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900">
                     {file.filename}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -652,10 +647,10 @@ export default function ElevPage() {
           </div>
         ) : (
           <div className="mb-4">
-            <p className="text-gray-500">Inget lärandematerial uppladdat än</p>
+            <p className="text-sm text-gray-500">Inget lärandematerial uppladdat än</p>
           </div>
         )}
-  
+
       </div>
     </div>
   )
