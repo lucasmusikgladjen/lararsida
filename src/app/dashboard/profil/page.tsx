@@ -77,19 +77,59 @@ export default function ProfilPage() {
     setEditMode(false)
   }
 
-  const handleEnterEditMode = () => setEditMode(true)
+  const handleEnterEditMode = () => {
+    if (profile) {
+      populateFormFromProfile(profile.fields)
+    }
+    setEditMode(true)
+  }
 
-  const EditHintButton = ({ className = '', ariaLabel }: { className?: string; ariaLabel?: string }) =>
-    !editMode ? (
-      <button
-        type="button"
-        onClick={handleEnterEditMode}
-        className={`inline-flex items-center rounded-full bg-gray-100/70 px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${className}`}
-        aria-label={ariaLabel}
-      >
-        Redigera
-      </button>
-    ) : null
+  const saveProfile = async () => {
+    try {
+      setSaving(true)
+      const res = await fetch('/api/teachers/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields: editForm }),
+      })
+      if (!res.ok) throw new Error('network')
+      setStatusMessage({ type: 'success', message: 'Profil uppdaterad!' })
+      setEditMode(false)
+      await fetchProfile()
+    } catch (err) {
+      console.error(err)
+      setStatusMessage({ type: 'error', message: 'Fel vid sparande av profil' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleEditAction = () => {
+    if (saving) return
+    if (editMode) {
+      void saveProfile()
+    } else {
+      handleEnterEditMode()
+    }
+  }
+
+  const editActionLabel = saving ? 'Sparar…' : editMode ? 'Spara' : 'Redigera'
+
+  const EditActionButton = ({ className = '', ariaLabel }: { className?: string; ariaLabel?: string }) => (
+    <button
+      type="button"
+      onClick={handleEditAction}
+      disabled={saving}
+      className={`inline-flex items-center rounded-full bg-gray-100/70 px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+      aria-label={
+        ariaLabel ?? (editMode ? 'Spara dina ändringar' : 'Aktivera redigeringsläge')
+      }
+    >
+      {editActionLabel}
+    </button>
+  )
 
   useEffect(() => {
     if (session?.user?.teacherId) {
@@ -116,28 +156,6 @@ export default function ProfilPage() {
       setStatusMessage({ type: 'error', message: 'Fel vid hämtning av profil' })
     } finally {
       setLoading(false)
-    }
-  }
-
-  const saveProfile = async () => {
-    try {
-      setSaving(true)
-      const res = await fetch('/api/teachers/me', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fields: editForm }),
-      })
-      if (!res.ok) throw new Error('network')
-      setStatusMessage({ type: 'success', message: 'Profil uppdaterad!' })
-      setEditMode(false)
-      await fetchProfile()
-    } catch (err) {
-      console.error(err)
-      setStatusMessage({ type: 'error', message: 'Fel vid sparande av profil' })
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -225,32 +243,6 @@ export default function ProfilPage() {
         </div>
       )}
 
-      {editMode && (
-        <div className="sticky top-4 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50/90 p-3 text-sm text-blue-900 shadow-sm backdrop-blur supports-[backdrop-filter]:backdrop-blur-sm sm:p-4">
-          <div className="flex items-center gap-2 font-medium">
-            <span aria-hidden>✏️</span>
-            <span>Redigeringsläge aktivt</span>
-          </div>
-          <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:flex-none">
-            <button
-              type="button"
-              onClick={handleCancelEdit}
-              className="inline-flex items-center justify-center gap-1 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 sm:text-sm"
-            >
-              Avbryt
-            </button>
-            <button
-              type="button"
-              onClick={saveProfile}
-              disabled={saving}
-              className="inline-flex items-center justify-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
-            >
-              {saving ? 'Sparar...' : 'Spara ändringar'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div
         className={`relative flex flex-col gap-4 rounded-2xl border bg-white/80 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
@@ -292,21 +284,30 @@ export default function ProfilPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-end">
-          {editMode ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 sm:text-sm">
-              ✏️ Redigerar profil
-            </span>
-          ) : (
+        <div className="flex items-center justify-end gap-2 sm:hidden">
+          {editMode && (
             <button
-              onClick={handleEnterEditMode}
-              className="inline-flex items-center gap-1.5 self-start rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:self-auto sm:px-4 sm:py-1.5 sm:text-sm"
+              type="button"
+              onClick={handleCancelEdit}
+              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
             >
-              ✏️ Redigera profil
+              ✏️ Redigerar
             </button>
           )}
+          <EditActionButton ariaLabel={editMode ? 'Spara dina profiländringar' : 'Redigera din profil'} />
         </div>
-        <EditHintButton className="absolute right-4 top-4 hidden sm:inline-flex" ariaLabel="Redigera din profil" />
+        <div className="absolute right-4 top-4 hidden items-center gap-2 sm:flex">
+          {editMode && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
+            >
+              Avbryt
+            </button>
+          )}
+          <EditActionButton ariaLabel={editMode ? 'Spara dina profiländringar' : 'Redigera din profil'} />
+        </div>
       </div>
 
       {/* Personuppgifter */}
@@ -317,7 +318,7 @@ export default function ProfilPage() {
       >
         <div className="mb-4 flex items-start justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
-          <EditHintButton ariaLabel="Aktivera redigering för personuppgifter" />
+          <EditActionButton ariaLabel={editMode ? 'Spara uppdaterade personuppgifter' : 'Redigera dina personuppgifter'} />
         </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
@@ -514,7 +515,7 @@ export default function ProfilPage() {
       >
         <div className="mb-4 flex items-start justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
-          <EditHintButton ariaLabel="Aktivera redigering för elever" />
+          <EditActionButton ariaLabel={editMode ? 'Spara dina uppdateringar kring elever' : 'Redigera dina elevuppgifter'} />
         </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
@@ -600,7 +601,7 @@ export default function ProfilPage() {
       >
         <div className="mb-4 flex items-start justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
-          <EditHintButton ariaLabel="Aktivera redigering för biografi" />
+          <EditActionButton ariaLabel={editMode ? 'Spara din uppdaterade biografi' : 'Redigera din biografi'} />
         </div>
         {editMode ? (
           <textarea
@@ -632,7 +633,7 @@ export default function ProfilPage() {
       >
         <div className="mb-4 flex items-start justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
-          <EditHintButton ariaLabel="Aktivera redigering för dokument" />
+          <EditActionButton ariaLabel={editMode ? 'Spara dina uppdaterade dokumentval' : 'Redigera dina dokument'} />
         </div>
         {editMode && (
           <p className="mb-4 text-xs font-medium text-blue-700 sm:text-sm">
