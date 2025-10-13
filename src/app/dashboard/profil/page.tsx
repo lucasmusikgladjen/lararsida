@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
+import { MAX_FILE_SIZE_BYTES, fileToBase64 } from '@/lib/client/files'
+
 interface TeacherProfile {
   id: string
   fields: {
@@ -145,18 +147,32 @@ export default function ProfilPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setStatusMessage({
+        type: 'error',
+        message: 'Filen är för stor. Maxstorlek är 5 MB.',
+      })
+      e.target.value = ''
+      return
+    }
+
     try {
       setUploadingFile(field)
       setStatusMessage(null)
 
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('field', field)
-      formData.append('teacherId', session?.user?.teacherId || '')
+      const base64 = await fileToBase64(file)
 
-      const res = await fetch('http://localhost:4000/upload', {
+      const res = await fetch('/api/airtable/upload', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          field,
+          fileName: file.name,
+          contentType: file.type || 'application/octet-stream',
+          base64,
+        }),
       })
 
       const result = await res.json()
