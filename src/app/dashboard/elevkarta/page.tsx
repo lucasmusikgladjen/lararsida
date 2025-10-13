@@ -146,10 +146,9 @@ export default function ElevkartaPage() {
   // Function to update guardian coordinates (since Longitude/Latitude are in the guardian table)
   const updateGuardianCoordinates = async (guardianId: string, lat: number, lng: number): Promise<boolean> => {
     try {
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Vårdnadshavare/${guardianId}`, {
+      const response = await fetch(`/api/guardians/${guardianId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -176,10 +175,9 @@ export default function ElevkartaPage() {
   // Function to mark guardian as geocoding failed
   const markGuardianGeocodingFailed = async (guardianId: string): Promise<boolean> => {
     try {
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Vårdnadshavare/${guardianId}`, {
+      const response = await fetch(`/api/guardians/${guardianId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -207,51 +205,23 @@ export default function ElevkartaPage() {
     try {
       setLoading(true)
       
-      // Hämta alla elever
-      let allRecords: any[] = []
-      let offset = ''
-      
-      do {
-        const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev${offset ? `?offset=${offset}` : ''}`
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          allRecords = allRecords.concat(data.records)
-          offset = data.offset || ''
-        } else {
-          console.error('Error fetching students:', response.statusText)
-          break
-        }
-      } while (offset)
-      
-      // Hämta vårdnadshavardata för kommentarer och adresser
-      let allGuardians: any[] = []
-      let guardianOffset = ''
-      
-      do {
-        const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Vårdnadshavare${guardianOffset ? `?offset=${guardianOffset}` : ''}`
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          allGuardians = allGuardians.concat(data.records)
-          guardianOffset = data.offset || ''
-        } else {
-          console.error('Error fetching guardians:', response.statusText)
-          break
-        }
-      } while (guardianOffset)
+      const studentsResponse = await fetch('/api/students?scope=available')
+
+      if (!studentsResponse.ok) {
+        throw new Error('Error fetching students')
+      }
+
+      const studentsData = await studentsResponse.json()
+      const allRecords = studentsData.records || []
+
+      const guardiansResponse = await fetch('/api/guardians')
+
+      if (!guardiansResponse.ok) {
+        throw new Error('Error fetching guardians')
+      }
+
+      const guardiansData = await guardiansResponse.json()
+      const allGuardians = guardiansData.records || []
       
       // Skapa en map för vårdnadshavare
       const guardiansMap = new Map()
@@ -438,10 +408,9 @@ export default function ElevkartaPage() {
       
       const updatedWishes = [...currentWishes, teacherId]
       
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev/${selectedStudent.id}`, {
+      const response = await fetch(`/api/students/${selectedStudent.id}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

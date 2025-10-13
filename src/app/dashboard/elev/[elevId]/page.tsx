@@ -46,41 +46,29 @@ export default function ElevPage() {
   const fetchElevData = async () => {
     try {
       setLoading(true)
-      
-      // Hämta elevdata
-      const elevResponse = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev/${elevId}`, {
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-        },
-      })
-      
+
+      const elevResponse = await fetch(`/api/students/${elevId}`)
+
       if (!elevResponse.ok) {
         console.error('Kunde inte hämta elevdata')
         return
       }
-      
+
       const elevData = await elevResponse.json()
       setElev(elevData.fields)
       setTerminsmål(elevData.fields.Terminsmål || '')
-      
-      // Hämta vårdnadshavare
+
       if (elevData.fields.Vårdnadshavare && elevData.fields.Vårdnadshavare.length > 0) {
         const vårdnadshavareId = elevData.fields.Vårdnadshavare[0]
-        const vhResponse = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Vårdnadshavare/${vårdnadshavareId}`, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
+        const vhResponse = await fetch(`/api/guardians/${vårdnadshavareId}`)
+
         if (vhResponse.ok) {
           const vhData = await vhResponse.json()
           setVårdnadshavare(vhData.fields)
         }
       }
-      
-      // Hämta lektioner för denna elev
+
       await fetchLektioner()
-      
     } catch (error) {
       console.error('Error fetching elev data:', error)
     } finally {
@@ -90,62 +78,36 @@ export default function ElevPage() {
 
   const fetchLektioner = async () => {
     try {
-      // Hämta alla lektioner
-      let allLektioner: any[] = []
-      let offset = ''
-      
-      do {
-        const url = `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lektioner${offset ? `?offset=${offset}` : ''}`
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          allLektioner = allLektioner.concat(data.records)
-          offset = data.offset || ''
-        } else {
-          break
-        }
-      } while (offset)
-      
-      // Filtrera lektioner för denna elev och sortera efter datum (senaste först)
-      const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
-      
-      // Tidigare lektioner (idag och bakåt) - bara genomförda
+      const response = await fetch(`/api/lessons?studentId=${elevId}`)
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch lessons')
+      }
+
+      const data = await response.json()
+      const allLektioner = data.records || []
+      const today = new Date().toISOString().split('T')[0]
+
       const elevLektioner = allLektioner
         .filter((lektion: any) => {
-          const elevField = lektion.fields.Elev
           const lektionDate = lektion.fields.Datum
-          
-          // Kolla om det är denna elev OCH datum är idag eller tidigare OCH lektionen är genomförd
-          const isThisStudent = Array.isArray(elevField) ? elevField.includes(elevId) : elevField === elevId
           const isNotFuture = lektionDate <= today
           const isCompleted = lektion.fields.Genomförd
-          
-          return isThisStudent && isNotFuture && isCompleted
+
+          return isNotFuture && isCompleted
         })
-        .sort((a, b) => new Date(b.fields.Datum).getTime() - new Date(a.fields.Datum).getTime())
-      
-      // Nästa planerade lektion (framtida)
+        .sort((a: any, b: any) => new Date(b.fields.Datum).getTime() - new Date(a.fields.Datum).getTime())
+
       const futureLessons = allLektioner
         .filter((lektion: any) => {
-          const elevField = lektion.fields.Elev
           const lektionDate = lektion.fields.Datum
-          
-          const isThisStudent = Array.isArray(elevField) ? elevField.includes(elevId) : elevField === elevId
-          const isFuture = lektionDate > today
-          
-          return isThisStudent && isFuture
+          return lektionDate > today
         })
-        .sort((a, b) => new Date(a.fields.Datum).getTime() - new Date(b.fields.Datum).getTime()) // Tidigaste först
-      
+        .sort((a: any, b: any) => new Date(a.fields.Datum).getTime() - new Date(b.fields.Datum).getTime())
+
       setLektioner(elevLektioner)
       setNextLesson(futureLessons.length > 0 ? futureLessons[0] : null)
-      
+
     } catch (error) {
       console.error('Error fetching lektioner:', error)
     }
@@ -154,11 +116,10 @@ export default function ElevPage() {
   const saveTerminsmål = async () => {
     try {
       setSavingTerminsmål(true)
-      
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Elev/${elevId}`, {
+
+      const response = await fetch(`/api/students/${elevId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -278,10 +239,9 @@ export default function ElevPage() {
 
   const updateLessonStatus = async (lessonId: string, updates: any) => {
     try {
-      const response = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lektioner/${lessonId}`, {
+      const response = await fetch(`/api/lessons/${lessonId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

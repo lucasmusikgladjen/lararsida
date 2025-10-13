@@ -68,10 +68,7 @@ export default function ProfilPage() {
   const fetchProfile = async () => {
     try {
       setLoading(true)
-      const res = await fetch(
-        `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lärare/${session?.user?.teacherId}`,
-        { headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}` } }
-      )
+      const res = await fetch('/api/teachers/me')
       if (!res.ok) throw new Error('network')
       const data = await res.json()
       setProfile(data)
@@ -99,17 +96,13 @@ export default function ProfilPage() {
   const saveProfile = async () => {
     try {
       setSaving(true)
-      const res = await fetch(
-        `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Lärare/${profile?.id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ fields: editForm }),
-        }
-      )
+      const res = await fetch('/api/teachers/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields: editForm }),
+      })
       if (!res.ok) throw new Error('network')
       setStatusMessage({ type: 'success', message: 'Profil uppdaterad!' })
       setEditMode(false)
