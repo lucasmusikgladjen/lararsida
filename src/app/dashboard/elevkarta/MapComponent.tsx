@@ -397,15 +397,16 @@ export default function MapComponent({ students, onStudentClick, selectedStudent
 
   return (
     <div className="relative">
-      <div 
-        ref={mapContainerRef} 
-        className="w-full h-full rounded-lg overflow-hidden border border-gray-200"
-        style={{ 
+      <div
+        ref={mapContainerRef}
+        className="relative w-full h-full rounded-lg overflow-hidden border border-gray-200"
+        style={{
           minHeight: '500px',
           outline: 'none',
           // KRITISKT: Förhindra scroll-events från att bubbla upp
           overscrollBehavior: 'contain',
-          touchAction: 'none'
+          touchAction: 'none',
+          zIndex: 0
         }}
         // Lägg till event handlers för att förhindra scroll
         onWheel={(e) => e.stopPropagation()}

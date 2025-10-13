@@ -336,7 +336,7 @@ export default function FirstLessonPage() {
               disabled={isSubmitting || loadingStudents || students.length === 0}
               className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
             >
-              {isSubmitting ? 'Skickar…' : 'skicka'}
+              {isSubmitting ? 'Skickar…' : 'Skicka'}
             </button>
           </div>
         </form>
