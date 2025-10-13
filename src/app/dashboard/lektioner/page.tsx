@@ -284,7 +284,7 @@ export default function AllaLektionerPage() {
       const targetWeekday = weekdayMap[newLessonsForm.weekday.toLowerCase()]
       
       // Hitta nästa datum för vald veckodag
-      let currentDate = new Date(today)
+      const currentDate = new Date(today)
       while (currentDate.getDay() !== targetWeekday) {
         currentDate.setDate(currentDate.getDate() + 1)
       }
