@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { MouseEvent } from 'react'
 import { useSession } from 'next-auth/react'
 
 import { MAX_FILE_SIZE_BYTES, fileToBase64 } from '@/lib/client/files'
@@ -108,12 +109,22 @@ export default function ProfilPage() {
     }
   }
 
-  const handleEditAction = () => {
+  const handleEditAction = (event?: MouseEvent<HTMLButtonElement>) => {
     if (saving) return
     if (editMode) {
       void saveProfile()
     } else {
+      const triggerButton = event?.currentTarget ?? null
+      const previousTop = triggerButton?.getBoundingClientRect().top ?? null
+
       handleEnterEditMode()
+
+      if (triggerButton && previousTop !== null) {
+        requestAnimationFrame(() => {
+          const newTop = triggerButton.getBoundingClientRect().top
+          window.scrollBy({ top: newTop - previousTop })
+        })
+      }
     }
   }
 
