@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 import { LessonReportPayload, sendLessonReportToGuardian } from '../utils/sendLessonReport'
@@ -15,7 +15,8 @@ export default function AllaLektionerPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('tidigare')
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null)
-  const [showScheduleUpdate, setShowScheduleUpdate] = useState(false)
+  const [showScheduleManager, setShowScheduleManager] = useState(false)
+  const [activeScheduleAction, setActiveScheduleAction] = useState<'update' | 'add' | 'cancel'>('update')
   const [actionState, setActionState] = useState<{
     lessonId: string | null,
     action: 'genomförd' | 'ombokad' | 'inställd' | null,
@@ -27,13 +28,49 @@ export default function AllaLektionerPage() {
   })
 
   // Form states
-  const [scheduleUpdateForm, setScheduleUpdateForm] = useState({
+  const [updateForm, setUpdateForm] = useState({
     elevId: '',
     arrangement: '',
     weekday: '',
     time: '',
     loading: false
   })
+
+  const [addForm, setAddForm] = useState({
+    elevId: '',
+    firstDate: '',
+    time: '',
+    arrangement: '',
+    loading: false
+  })
+
+  const [cancelForm, setCancelForm] = useState({
+    elevId: '',
+    confirmed: false,
+    loading: false
+  })
+
+  const selectedAddWeekday = useMemo(() => {
+    if (!addForm.firstDate) {
+      return ''
+    }
+
+    const date = new Date(`${addForm.firstDate}T00:00:00`)
+
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+
+    return date.toLocaleDateString('sv-SE', { weekday: 'long' })
+  }, [addForm.firstDate])
+
+  const formattedAddWeekday = useMemo(() => {
+    if (!selectedAddWeekday) {
+      return ''
+    }
+
+    return selectedAddWeekday.charAt(0).toUpperCase() + selectedAddWeekday.slice(1)
+  }, [selectedAddWeekday])
 
   useEffect(() => {
     if (session?.user?.teacherId) {
@@ -248,15 +285,237 @@ export default function AllaLektionerPage() {
     }
   }
 
-  const updateFutureLessons = async () => {
-    if (!scheduleUpdateForm.elevId) {
+  const formatDateOnly = (date: Date) => {
+    return date.toISOString().split('T')[0]
+  }
+
+  const determineTermEndDate = (firstDate: Date) => {
+    const year = firstDate.getFullYear()
+    const month = firstDate.getMonth() + 1
+    const day = firstDate.getDate()
+
+    let termYear = year
+    let termMonth = 6
+    let termDay = 30
+
+    if (month < 7) {
+      termMonth = 6
+      termDay = 30
+    } else if (month < 12 || (month === 12 && day <= 20)) {
+      termMonth = 12
+      termDay = 20
+    } else {
+      termYear = year + 1
+      termMonth = 6
+      termDay = 30
+    }
+
+    return new Date(`${termYear}-${String(termMonth).padStart(2, '0')}-${String(termDay).padStart(2, '0')}T00:00:00`)
+  }
+
+  const chunk = <T,>(items: T[], size: number) => {
+    const result: T[][] = []
+
+    for (let i = 0; i < items.length; i += size) {
+      result.push(items.slice(i, i + size))
+    }
+
+    return result
+  }
+
+  const resetScheduleForms = () => {
+    setUpdateForm({ elevId: '', arrangement: '', weekday: '', time: '', loading: false })
+    setAddForm({ elevId: '', firstDate: '', time: '', arrangement: '', loading: false })
+    setCancelForm({ elevId: '', confirmed: false, loading: false })
+  }
+
+  const handleCloseScheduleModal = () => {
+    setShowScheduleManager(false)
+    setActiveScheduleAction('update')
+    resetScheduleForms()
+  }
+
+  const handleOpenScheduleModal = () => {
+    resetScheduleForms()
+    setActiveScheduleAction('update')
+    setShowScheduleManager(true)
+  }
+
+  const addRecurringLessons = async () => {
+    if (!addForm.elevId) {
       alert('Välj en elev')
       return
     }
 
-    const hasArrangementChange = Boolean(scheduleUpdateForm.arrangement)
-    const hasWeekdayChange = Boolean(scheduleUpdateForm.weekday)
-    const hasTimeChange = Boolean(scheduleUpdateForm.time)
+    if (!addForm.firstDate) {
+      alert('Välj startdatum')
+      return
+    }
+
+    if (!addForm.time) {
+      alert('Välj tid')
+      return
+    }
+
+    const teacherId = session?.user?.teacherId
+
+    if (!teacherId) {
+      alert('Kunde inte hitta lärarinformation. Logga ut och in igen.')
+      return
+    }
+
+    const firstDate = new Date(`${addForm.firstDate}T00:00:00`)
+
+    if (Number.isNaN(firstDate.getTime())) {
+      alert('Ogiltigt startdatum')
+      return
+    }
+
+    const termEnd = determineTermEndDate(firstDate)
+
+    const lessonsPayload: Array<{ fields: Record<string, any> }> = []
+
+    for (let current = new Date(firstDate); current <= termEnd; current.setDate(current.getDate() + 7)) {
+      const fields: Record<string, any> = {
+        Datum: formatDateOnly(current),
+        Klockslag: addForm.time,
+        Elev: [addForm.elevId],
+        Lärare: [teacherId],
+        Genomförd: false,
+        Inställd: false,
+      }
+
+      if (addForm.arrangement) {
+        fields['Upplägg'] = addForm.arrangement
+      }
+
+      lessonsPayload.push({ fields })
+    }
+
+    if (lessonsPayload.length === 0) {
+      alert('Inga lektioner att skapa. Kontrollera datumet.')
+      return
+    }
+
+    setAddForm(prev => ({ ...prev, loading: true }))
+
+    try {
+      const batches = chunk(lessonsPayload, 10)
+
+      for (const batch of batches) {
+        const response = await fetch('/api/lessons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ records: batch })
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Failed to create lessons', errorData)
+          throw new Error('Kunde inte skapa lektioner')
+        }
+      }
+
+      await fetchLektioner()
+      handleCloseScheduleModal()
+      alert('Lektioner tillagda fram till nästa termin!')
+    } catch (error) {
+      console.error('Error creating lessons:', error)
+      alert('Fel vid skapande av lektioner')
+    } finally {
+      setAddForm(prev => ({ ...prev, loading: false }))
+    }
+  }
+
+  const deleteUpcomingLessons = async () => {
+    if (!cancelForm.elevId) {
+      alert('Välj en elev')
+      return
+    }
+
+    if (!cancelForm.confirmed) {
+      alert('Bekräfta att du vill radera lektionerna')
+      return
+    }
+
+    const today = new Date().toISOString().split('T')[0]
+
+    const lessonsToDelete = lektioner.filter(lektion => {
+      const elevField = lektion.fields.Elev
+      const elevId = Array.isArray(elevField) ? elevField[0] : elevField
+      const isThisStudent = elevId === cancelForm.elevId
+      const isFuture = lektion.fields.Datum >= today
+      const notCompleted = !lektion.fields.Genomförd
+
+      return isThisStudent && isFuture && notCompleted
+    })
+
+    if (lessonsToDelete.length === 0) {
+      alert('Inga kommande lektioner att radera')
+      return
+    }
+
+    setCancelForm(prev => ({ ...prev, loading: true }))
+
+    try {
+      const batches = chunk(lessonsToDelete.map(lektion => lektion.id), 10)
+
+      for (const batch of batches) {
+        const response = await fetch('/api/lessons', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ recordIds: batch })
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Failed to delete lessons', errorData)
+          throw new Error('Kunde inte radera lektioner')
+        }
+      }
+
+      await fetchLektioner()
+      handleCloseScheduleModal()
+      alert('Alla kommande lektioner togs bort.')
+    } catch (error) {
+      console.error('Error deleting lessons:', error)
+      alert('Fel vid radering av lektioner')
+    } finally {
+      setCancelForm(prev => ({ ...prev, loading: false }))
+    }
+  }
+
+  const scheduleActions = [
+    {
+      key: 'update' as const,
+      label: 'Justera upplägg/tid',
+      description: 'Ändra upplägg, veckodag eller tid för alla framtida lektioner.'
+    },
+    {
+      key: 'add' as const,
+      label: 'Planera fler lektioner',
+      description: 'Skapa återkommande lektioner varje vecka fram till nästa termin.'
+    },
+    {
+      key: 'cancel' as const,
+      label: 'Avsluta kommande lektioner',
+      description: 'Radera alla kommande lektioner som ännu inte är genomförda.'
+    }
+  ]
+
+  const updateFutureLessons = async () => {
+    if (!updateForm.elevId) {
+      alert('Välj en elev')
+      return
+    }
+
+    const hasArrangementChange = Boolean(updateForm.arrangement)
+    const hasWeekdayChange = Boolean(updateForm.weekday)
+    const hasTimeChange = Boolean(updateForm.time)
 
     if (!hasArrangementChange && !hasWeekdayChange && !hasTimeChange) {
       alert('Välj minst en ändring att genomföra')
@@ -269,7 +528,7 @@ export default function AllaLektionerPage() {
       .filter(lektion => {
         const elevField = lektion.fields.Elev
         const elevId = Array.isArray(elevField) ? elevField[0] : elevField
-        const isThisStudent = elevId === scheduleUpdateForm.elevId
+        const isThisStudent = elevId === updateForm.elevId
         const isFuture = lektion.fields.Datum >= today
         const notCompleted = !lektion.fields.Genomförd
 
@@ -296,7 +555,7 @@ export default function AllaLektionerPage() {
     let targetWeekdayIndex: number | undefined
 
     if (hasWeekdayChange) {
-      targetWeekdayIndex = weekdayMap[scheduleUpdateForm.weekday.toLowerCase()]
+      targetWeekdayIndex = weekdayMap[updateForm.weekday.toLowerCase()]
 
       if (targetWeekdayIndex === undefined) {
         alert('Ogiltig veckodag vald')
@@ -310,7 +569,7 @@ export default function AllaLektionerPage() {
       }
     }
 
-    setScheduleUpdateForm(prev => ({ ...prev, loading: true }))
+    setUpdateForm(prev => ({ ...prev, loading: true }))
 
     try {
       for (let index = 0; index < lessonsToUpdate.length; index++) {
@@ -320,15 +579,15 @@ export default function AllaLektionerPage() {
         if (hasWeekdayChange && firstTargetDate) {
           const nextDate = new Date(firstTargetDate)
           nextDate.setDate(nextDate.getDate() + index * 7)
-          fields['Datum'] = nextDate.toISOString().split('T')[0]
+          fields['Datum'] = formatDateOnly(nextDate)
         }
 
-        if (hasTimeChange) {
-          fields['Klockslag'] = scheduleUpdateForm.time
+        if (hasTimeChange && updateForm.time) {
+          fields['Klockslag'] = updateForm.time
         }
 
-        if (hasArrangementChange) {
-          fields['Upplägg'] = scheduleUpdateForm.arrangement
+        if (hasArrangementChange && updateForm.arrangement) {
+          fields['Upplägg'] = updateForm.arrangement
         }
 
         if (Object.keys(fields).length === 0) {
@@ -350,15 +609,14 @@ export default function AllaLektionerPage() {
         }
       }
 
-      alert('Lektioner uppdaterade!')
-      setShowScheduleUpdate(false)
-      setScheduleUpdateForm({ elevId: '', arrangement: '', weekday: '', time: '', loading: false })
       await fetchLektioner()
+      handleCloseScheduleModal()
+      alert('Lektioner uppdaterade!')
     } catch (error) {
       console.error('Error updating lessons:', error)
       alert('Fel vid uppdatering av lektioner')
     } finally {
-      setScheduleUpdateForm(prev => ({ ...prev, loading: false }))
+      setUpdateForm(prev => ({ ...prev, loading: false }))
     }
   }
 
@@ -379,16 +637,10 @@ export default function AllaLektionerPage() {
           <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Alla lektioner</h1>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
-              onClick={() => setShowNewLessonsForm(true)}
-              className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 sm:w-auto sm:px-4 sm:text-base"
+              onClick={handleOpenScheduleModal}
+              className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto sm:px-4 sm:text-base"
             >
-              Schemalägg lektion
-            </button>
-            <button
-              onClick={() => setShowBulkDelete(true)}
-              className="w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 sm:w-auto sm:px-4 sm:text-base"
-            >
-              Ändra upplägg eller lektionstid
+              Hantera lektionsschema
             </button>
           </div>
         </div>
@@ -417,122 +669,291 @@ export default function AllaLektionerPage() {
         </div>
       </div>
 
-      {/* Skapa ny lektionstid modal */}
-      {showNewLessonsForm && (
+      {/* Schemaläggningshanterare */}
+      {showScheduleManager && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
-            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Schemalägg ny lektionstid</h2>
-            
-            <div className="space-y-4">
+          <div className="w-full max-w-3xl rounded-xl bg-white p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Elev</label>
-                <select
-                  value={scheduleUpdateForm.elevId}
-                  onChange={(e) => setScheduleUpdateForm(prev => ({ ...prev, elevId: e.target.value }))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Välj elev...</option>
-                  {myStudents.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.fields.Namn}
-                    </option>
-                  ))}
-                </select>
+                <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Hantera lektionsschema</h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Välj vad du vill göra med en elevs kommande lektioner. Allt samlat i ett tydligt flöde.
+                </p>
               </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Upplägg</label>
-                <select
-                  value={scheduleUpdateForm.arrangement}
-                  onChange={(e) => setScheduleUpdateForm(prev => ({ ...prev, arrangement: e.target.value }))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Behåll nuvarande upplägg</option>
-                  <option value="45-60 min">45-60 min</option>
-                  <option value="90 min">90 min</option>
-                  <option value="120 min">120 min</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tid</label>
-                <input
-                  type="time"
-                  value={newLessonsForm.time}
-                  onChange={(e) => setNewLessonsForm(prev => ({ ...prev, time: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
-                onClick={createRecurringLessons}
-                disabled={newLessonsForm.loading}
-                className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+                type="button"
+                onClick={handleCloseScheduleModal}
+                className="rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
               >
-                {newLessonsForm.loading ? 'Schemalägg...' : 'Schemalägg lektioner'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowNewLessonsForm(false)
-                  setNewLessonsForm({ elevId: '', weekday: '', time: '', loading: false })
-                }}
-                className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
-              >
-                Avbryt
+                Stäng
               </button>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Bulk delete modal */}
-      {showBulkDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl sm:p-6">
-            <h2 className="mb-4 text-lg font-bold text-gray-900 sm:text-xl">Ta bort schemalagd lektionstid</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Elev</label>
-                <select
-                  value={bulkDeleteForm.elevId}
-                  onChange={(e) => setBulkDeleteForm(prev => ({ ...prev, elevId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            <div className="mt-5 grid gap-2 sm:grid-cols-3">
+              {scheduleActions.map((action) => (
+                <button
+                  key={action.key}
+                  type="button"
+                  onClick={() => setActiveScheduleAction(action.key)}
+                  className={`flex h-full flex-col items-start rounded-lg border p-4 text-left transition-all ${
+                    activeScheduleAction === action.key
+                      ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-800'
+                  }`}
                 >
-                  <option value="">Välj elev...</option>
-                  {myStudents.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.fields.Namn}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900">
-                <p className="font-medium">Tips</p>
-                <p>Om du bara vill ändra upplägg eller tid kan du lämna de andra fälten tomma.</p>
-              </div>
+                  <span className="text-sm font-semibold sm:text-base">{action.label}</span>
+                  <span
+                    className={`mt-2 text-xs leading-snug sm:text-sm ${
+                      activeScheduleAction === action.key ? 'text-blue-900/80' : 'text-gray-500'
+                    }`}
+                  >
+                    {action.description}
+                  </span>
+                </button>
+              ))}
             </div>
-            
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
-              <button
-                onClick={bulkDeleteLessons}
-                disabled={bulkDeleteForm.loading}
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
-              >
-                {scheduleUpdateForm.loading ? 'Sparar...' : 'Spara ändringar'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowScheduleUpdate(false)
-                  setScheduleUpdateForm({ elevId: '', arrangement: '', weekday: '', time: '', loading: false })
-                }}
-                className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
-              >
-                Avbryt
-              </button>
+
+            <div className="mt-6">
+              {activeScheduleAction === 'update' && (
+                <form
+                  className="space-y-5"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    updateFutureLessons()
+                  }}
+                >
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Elev</label>
+                    <select
+                      value={updateForm.elevId}
+                      onChange={(e) => setUpdateForm(prev => ({ ...prev, elevId: e.target.value }))}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Välj elev...</option>
+                      {myStudents.map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.fields.Namn}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Upplägg</label>
+                      <select
+                        value={updateForm.arrangement}
+                        onChange={(e) => setUpdateForm(prev => ({ ...prev, arrangement: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Behåll nuvarande upplägg</option>
+                        <option value="45-60 min">45-60 min</option>
+                        <option value="90 min">90 min</option>
+                        <option value="120 min">120 min</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Veckodag</label>
+                      <select
+                        value={updateForm.weekday}
+                        onChange={(e) => setUpdateForm(prev => ({ ...prev, weekday: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Behåll nuvarande veckodag</option>
+                        <option value="måndag">Måndag</option>
+                        <option value="tisdag">Tisdag</option>
+                        <option value="onsdag">Onsdag</option>
+                        <option value="torsdag">Torsdag</option>
+                        <option value="fredag">Fredag</option>
+                        <option value="lördag">Lördag</option>
+                        <option value="söndag">Söndag</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Tid</label>
+                      <input
+                        type="time"
+                        value={updateForm.time}
+                        onChange={(e) => setUpdateForm(prev => ({ ...prev, time: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                    <p className="font-medium">Tips</p>
+                    <p className="mt-1">Lämna fält tomma för att behålla nuvarande värde.</p>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                    <button
+                      type="submit"
+                      disabled={updateForm.loading}
+                      className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+                    >
+                      {updateForm.loading ? 'Sparar...' : 'Spara ändringar'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCloseScheduleModal}
+                      className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {activeScheduleAction === 'add' && (
+                <form
+                  className="space-y-5"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    addRecurringLessons()
+                  }}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Elev</label>
+                      <select
+                        value={addForm.elevId}
+                        onChange={(e) => setAddForm(prev => ({ ...prev, elevId: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Välj elev...</option>
+                        {myStudents.map((student) => (
+                          <option key={student.id} value={student.id}>
+                            {student.fields.Namn}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Första lektionens datum</label>
+                      <input
+                        type="date"
+                        value={addForm.firstDate}
+                        onChange={(e) => setAddForm(prev => ({ ...prev, firstDate: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Tid</label>
+                      <input
+                        type="time"
+                        value={addForm.time}
+                        onChange={(e) => setAddForm(prev => ({ ...prev, time: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Upplägg</label>
+                      <select
+                        value={addForm.arrangement}
+                        onChange={(e) => setAddForm(prev => ({ ...prev, arrangement: e.target.value }))}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Valfritt – behåll nuvarande</option>
+                        <option value="45-60 min">45-60 min</option>
+                        <option value="90 min">90 min</option>
+                        <option value="120 min">120 min</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p className="font-medium">Så fungerar det</p>
+                    <p className="mt-1">
+                      Vi skapar en lektion varje vecka från valt startdatum fram till nästa terminsslut.
+                      {formattedAddWeekday && (
+                        <span className="block">Vald veckodag: {formattedAddWeekday}.</span>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                    <button
+                      type="submit"
+                      disabled={addForm.loading}
+                      className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+                    >
+                      {addForm.loading ? 'Skapar...' : 'Skapa lektioner'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCloseScheduleModal}
+                      className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {activeScheduleAction === 'cancel' && (
+                <form
+                  className="space-y-5"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    deleteUpcomingLessons()
+                  }}
+                >
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Elev</label>
+                    <select
+                      value={cancelForm.elevId}
+                      onChange={(e) => setCancelForm(prev => ({ ...prev, elevId: e.target.value, confirmed: false }))}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Välj elev...</option>
+                      {myStudents.map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.fields.Namn}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-900">
+                    <p className="font-semibold">Detta går inte att ångra.</p>
+                    <p className="mt-1">
+                      Alla framtida lektioner för eleven tas bort, även de som är ombokade eller inställda men ännu inte genomförda.
+                    </p>
+                  </div>
+
+                  <label className="flex items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={cancelForm.confirmed}
+                      onChange={(e) => setCancelForm(prev => ({ ...prev, confirmed: e.target.checked }))}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span>Jag förstår att lektionerna tas bort permanent.</span>
+                  </label>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                    <button
+                      type="submit"
+                      disabled={cancelForm.loading}
+                      className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+                    >
+                      {cancelForm.loading ? 'Tar bort...' : 'Ta bort kommande lektioner'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCloseScheduleModal}
+                      className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>
