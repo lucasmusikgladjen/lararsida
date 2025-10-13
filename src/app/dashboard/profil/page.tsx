@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ChangeEvent } from 'react'
 import { useSession } from 'next-auth/react'
 
 interface TeacherProfile {
@@ -115,48 +115,48 @@ export default function ProfilPage() {
     }
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-  const file = e.target.files?.[0]
-  if (!file) return
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-  try {
-    setUploadingFile(field)
-    setStatusMessage(null)
+    try {
+      setUploadingFile(field)
+      setStatusMessage(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('field', field)
-    formData.append('teacherId', session?.user?.teacherId || '')
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('field', field)
+      formData.append('teacherId', session?.user?.teacherId || '')
 
-    const res = await fetch('http://localhost:4000/upload', {
-      method: 'POST',
-      body: formData,
-    })
+      const res = await fetch('http://localhost:4000/upload', {
+        method: 'POST',
+        body: formData,
+      })
 
-    const result = await res.json()
+      const result = await res.json()
 
-    if (!res.ok) {
-      throw new Error(result.error || 'Fel vid uppladdning')
+      if (!res.ok) {
+        throw new Error(result.error || 'Fel vid uppladdning')
+      }
+
+      setStatusMessage({
+        type: 'success',
+        message: `Filen "${file.name}" har laddats upp!`,
+      })
+
+      // Uppdatera profilen för att visa nya filen
+      await fetchProfile()
+    } catch (err: any) {
+      console.error(err)
+      setStatusMessage({
+        type: 'error',
+        message: `Uppladdningen misslyckades: ${err.message || 'okänt fel'}`,
+      })
+    } finally {
+      setUploadingFile(null)
+      e.target.value = ''
     }
-
-    setStatusMessage({
-      type: 'success',
-      message: `Filen "${file.name}" har laddats upp!`,
-    })
-
-    // Uppdatera profilen för att visa nya filen
-    await fetchProfile()
-  } catch (err: any) {
-    console.error(err)
-    setStatusMessage({
-      type: 'error',
-      message: `Uppladdningen misslyckades: ${err.message || 'okänt fel'}`,
-    })
-  } finally {
-    setUploadingFile(null)
-    e.target.value = ''
   }
-}
 
 
   const calculateTimlön = () =>
@@ -235,18 +235,17 @@ export default function ProfilPage() {
           </div>
         </div>
         {editMode ? (
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
             <button
               onClick={saveProfile}
               disabled={saving}
-              className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
             >
-              {saving ? 'Sparar...' : 'Spara'}
+              {saving ? 'Sparar...' : 'Spara ändringar'}
             </button>
             <button
               onClick={() => {
                 setEditMode(false)
-                // reset form
                 setEditForm({
                   Namn: profile.fields.Namn || '',
                   Instrument: profile.fields.Instrument || '',
@@ -261,40 +260,43 @@ export default function ProfilPage() {
                   'Önskat antal elever': profile.fields['Önskat antal elever'] || 0,
                 })
               }}
-              className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-base"
             >
               Avbryt
             </button>
           </div>
         ) : (
           <button
-            onClick={() => setEditMode(true)}
-            className="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-600 sm:px-4 sm:text-base"
+            onClick={() => {
+              setEditMode(true)
+              setStatusMessage(null)
+            }}
+            className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-base"
           >
+            <span aria-hidden="true">✏️</span>
             Redigera profil
           </button>
         )}
       </div>
 
+      {editMode && (
+        <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900 shadow-sm sm:px-6">
+          <p className="font-semibold">Du redigerar din profil just nu.</p>
+          <p>Gör dina ändringar nedan och spara när du är klar.</p>
+        </div>
+      )}
+
       {/* Personuppgifter */}
       <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        {editMode ? (
-          <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            {saving ? 'Sparar...' : 'Spara'}
-          </button>
-        ) : (
-          <button
-            onClick={() => setEditMode(true)}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            Redigera
-          </button>
-        )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
+          {editMode && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 sm:text-sm">
+              <span aria-hidden="true">•</span>
+              Redigeras
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
           <div className="space-y-4">
             <div>
@@ -423,23 +425,15 @@ export default function ProfilPage() {
 
       {/* Löneuppgifter */}
       <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        {editMode ? (
-          <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            {saving ? 'Sparar...' : 'Spara'}
-          </button>
-        ) : (
-          <button
-            onClick={() => setEditMode(true)}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            Redigera
-          </button>
-        )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Löneuppgifter</h2>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Löneuppgifter</h2>
+          {editMode && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 sm:text-sm">
+              <span aria-hidden="true">•</span>
+              Redigeras
+            </span>
+          )}
+        </div>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Timlön</label>
@@ -491,23 +485,15 @@ export default function ProfilPage() {
 
       {/* Elever */}
       <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        {editMode ? (
-          <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            {saving ? 'Sparar...' : 'Spara'}
-          </button>
-        ) : (
-          <button
-            onClick={() => setEditMode(true)}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            Redigera
-          </button>
-        )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Elever</h2>
+          {editMode && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 sm:text-sm">
+              <span aria-hidden="true">•</span>
+              Redigeras
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
           {/* Nuvarande */}
           <div className="rounded-lg border border-gray-200 p-4 text-center">
@@ -581,23 +567,15 @@ export default function ProfilPage() {
 
       {/* Biografi */}
       <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        {editMode ? (
-          <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            {saving ? 'Sparar...' : 'Spara'}
-          </button>
-        ) : (
-          <button
-            onClick={() => setEditMode(true)}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            Redigera
-          </button>
-        )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Biografi</h2>
+          {editMode && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 sm:text-sm">
+              <span aria-hidden="true">•</span>
+              Redigeras
+            </span>
+          )}
+        </div>
         {editMode ? (
           <textarea
             value={editForm.Biografi}
@@ -622,23 +600,15 @@ export default function ProfilPage() {
 
       {/* Dokument */}
       <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-6">
-        {editMode ? (
-          <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            {saving ? 'Sparar...' : 'Spara'}
-          </button>
-        ) : (
-          <button
-            onClick={() => setEditMode(true)}
-            className="mb-4 inline-flex items-center rounded-md bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-600 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm"
-          >
-            Redigera
-          </button>
-        )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Dokument</h2>
+          {editMode && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 sm:text-sm">
+              <span aria-hidden="true">•</span>
+              Redigeras
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
           {/* Avtal */}
           <div>
