@@ -7,6 +7,7 @@
 | `AIRTABLE_API_KEY` | API-nyckel för att läsa och uppdatera Airtable-basens tabeller. |
 | `AIRTABLE_BASE_ID` | ID för Airtable-basen. |
 | `LESSON_REPORT_WEBHOOK_URL` | URL till Make-webhooken som tar emot färdiga lektionsrapporter. |
+| `FIRST_LESSON_WEBHOOK_URL` | URL till Make-webhooken som tar emot planeringen för första lektionen. |
 
 ## Skicka lektionsrapporter
 

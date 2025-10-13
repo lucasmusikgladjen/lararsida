@@ -217,6 +217,13 @@ export default function DashboardLayout({
                 </Link>
 
                 <Link
+                  href="/dashboard/forsta-lektionen"
+                  className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition ${isActivePage('/dashboard/forsta-lektionen')}`}
+                >
+                  🆕 <span className="ml-3">Första lektionen</span>
+                </Link>
+
+                <Link
                   href="/dashboard/elevkarta"
                   className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition ${isActivePage('/dashboard/elevkarta')}`}
                 >
