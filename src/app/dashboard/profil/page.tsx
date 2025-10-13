@@ -180,7 +180,7 @@ export default function ProfilPage() {
     )
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status */}
       {statusMessage && (
         <div
@@ -228,7 +228,7 @@ export default function ProfilPage() {
             )}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{profile.fields.Namn}</h1>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">{profile.fields.Namn}</h1>
             <p className="text-sm text-gray-600 sm:text-base">
               {profile.fields.Instrument || 'Instrument ej angivet'}
             </p>

@@ -428,11 +428,11 @@ export default function AllaLektionerPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Header med knappar */}
       <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Alla lektioner</h1>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">Alla lektioner</h1>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={() => setShowNewLessonsForm(true)}
@@ -450,7 +450,7 @@ export default function AllaLektionerPage() {
         </div>
 
         {/* Filter */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
           {[
             { key: 'tidigare', label: 'Tidigare' },
             { key: 'kommande', label: 'Kommande' },
@@ -461,7 +461,7 @@ export default function AllaLektionerPage() {
             <button
               key={filterOption.key}
               onClick={() => setFilter(filterOption.key)}
-              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors sm:text-base ${
                 filter === filterOption.key
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'

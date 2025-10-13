@@ -281,7 +281,7 @@ export default function ElevPage() {
   const displayedLektioner = showAllLessons ? lektioner : lektioner.slice(0, 3)
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-12 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       {/* Status Messages */}
       {statusMessage && (
         <div className={`rounded-lg border p-3 sm:p-4 ${
@@ -300,18 +300,18 @@ export default function ElevPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
         {/* Elevinfo */}
         <div className="rounded-lg bg-white p-4 shadow-sm sm:p-6">
-          <h1 className="mb-4 text-xl font-bold text-gray-900 sm:text-2xl">
+          <h1 className="mb-4 text-xl font-bold text-gray-900 sm:text-3xl">
             {elev.Namn}
           </h1>
           <div className="space-y-3">
-            <div className="flex items-center">
-              <span className="w-24 text-sm font-medium text-gray-500">Ålder:</span>
+            <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Ålder:</span>
               <span className="text-sm text-gray-900 sm:text-base">
                 {elev.Födelseår ? calculateAge(elev.Födelseår) : 'Okänd'} år
               </span>
             </div>
-            <div className="flex items-center">
-              <span className="w-24 text-sm font-medium text-gray-500">Instrument:</span>
+            <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+              <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Instrument:</span>
               <span className="text-sm text-gray-900 sm:text-base">{elev.Instrument || 'Inte angivet'}</span>
             </div>
           </div>
@@ -324,24 +324,24 @@ export default function ElevPage() {
           </h2>
           {vårdnadshavare ? (
             <div className="space-y-3">
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Namn:</span>
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Namn:</span>
                 <span className="text-sm text-gray-900 sm:text-base">{vårdnadshavare.Namn}</span>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Adress:</span>
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Adress:</span>
                 <span className="text-sm text-gray-900 sm:text-base">
                   {vårdnadshavare.Gata} {vårdnadshavare.Gatunummer}, {vårdnadshavare.Ort}
                 </span>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">E-post:</span>
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">E-post:</span>
                 <a href={`mailto:${vårdnadshavare['E-post']}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
                   {vårdnadshavare['E-post']}
                 </a>
               </div>
-              <div className="flex items-center">
-                <span className="w-24 text-sm font-medium text-gray-500">Telefon:</span>
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                <span className="w-24 shrink-0 text-sm font-medium text-gray-500 sm:text-base">Telefon:</span>
                 <a href={`tel:${vårdnadshavare.Telefon}`} className="text-sm text-blue-600 hover:text-blue-800 sm:text-base">
                   {vårdnadshavare.Telefon}
                 </a>
