@@ -99,10 +99,7 @@ export default function LoginPage() {
 
           <div className="mt-8 space-y-2 text-center text-sm">
             <a href="/register" className="block font-medium text-green-600 transition hover:text-green-700">
-              Sätt nytt lösenord (för befintliga lärare)
-            </a>
-            <a href="#" className="block text-gray-600 transition hover:text-blue-600">
-              Glömt lösenord?
+              Skapa eller ändra lösenord (för befintliga lärare)
             </a>
           </div>
         </div>

@@ -460,30 +460,6 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {currentWeekOffset !== 0 && (
-                <button
-                  onClick={() => {
-                    // Hitta vilken vecka som innehåller idag
-                    const today = new Date()
-                    let testOffset = 0
-
-                    // Testa olika offsets för att hitta veckan som innehåller idag
-                    for (let i = -10; i <= 10; i++) {
-                      const testDays = getWeekDaysForOffset(i)
-                      if (testDays.some(day => day.toDateString() === today.toDateString())) {
-                        testOffset = i
-                        break
-                      }
-                    }
-
-                    setCurrentWeekOffset(testOffset)
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
-                  disabled={loadingLektioner}
-                >
-                  <span>Hoppa till denna vecka</span>
-                </button>
-              )}
             </div>
           </div>
         </div>

@@ -13,16 +13,6 @@ const WEEKDAYS: { label: string; value: string }[] = [
   { label: 'Söndag', value: 'sunday' },
 ]
 
-const CHECKLIST_ITEMS = [
-  'Välkomna elev och eventuell vårdnadshavare – skapa trygg stämning.',
-  'Gå igenom mål för terminen och stäm av förväntningar.',
-  'Bekräfta ordinarie lektionstid och reservtid.',
-  'Gör en snabb nulägesanalys av elevens nivå.',
-  'Presentera första veckornas upplägg och eventuellt material.',
-  'Säkerställ att kontaktuppgifter och kommunikationskanaler fungerar.',
-  'Planera hur uppföljning ska ske inför lektion två.',
-]
-
 type StudentRecordFields = {
   Namn?: string
   Instrument?: string
@@ -191,29 +181,13 @@ export default function FirstLessonPage() {
       <header className="space-y-3">
         <h1 className="text-3xl font-bold text-gray-900">Första lektionen</h1>
         <p className="text-base text-gray-600">
-          Använd checklistan inför första lektionen och fyll i formuläret tillsammans med vårdnadshavaren i slutet av
-          lektionen för att skapa underlag till deras lektionsavtal. OBS: fyller du inte i formuläret så kommer inte
-          lektionerna att kunna fortsätta.
+          Fyll i formuläret tillsammans med vårdnadshavaren i slutet av lektionen för att skapa underlag till deras
+          lektionsavtal. OBS: fyller du inte i formuläret så kommer inte lektionerna att kunna fortsätta.
         </p>
       </header>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-blue-900">Checklista</h2>
-          <ul className="mt-4 space-y-3 text-sm text-blue-900/90">
-            {CHECKLIST_ITEMS.map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <span className="mt-0.5 text-lg">✅</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-      </section>
-
       <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900">Planering av första lektionen</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Bestäm tid</h2>
 
         {status && (
           <div
@@ -362,7 +336,7 @@ export default function FirstLessonPage() {
               disabled={isSubmitting || loadingStudents || students.length === 0}
               className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
             >
-              {isSubmitting ? 'Skickar…' : 'Skicka planeringen'}
+              {isSubmitting ? 'Skickar…' : 'skicka'}
             </button>
           </div>
         </form>
