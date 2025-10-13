@@ -191,8 +191,9 @@ export default function FirstLessonPage() {
       <header className="space-y-3">
         <h1 className="text-3xl font-bold text-gray-900">Första lektionen</h1>
         <p className="text-base text-gray-600">
-          Använd checklistan inför terminstart och fyll i formuläret för att automatiskt skapa lektioner samt informera
-          vår automationskedja.
+          Använd checklistan inför första lektionen och fyll i formuläret tillsammans med vårdnadshavaren i slutet av
+          lektionen för att skapa underlag till deras lektionsavtal. OBS: fyller du inte i formuläret så kommer inte
+          lektionerna att kunna fortsätta.
         </p>
       </header>
 
@@ -209,14 +210,6 @@ export default function FirstLessonPage() {
           </ul>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900">Snabbinfo</h2>
-          <p className="mt-3 text-sm text-gray-600">
-            När du skickar formuläret registreras första lektionen i Airtable. Därefter schemaläggs veckovisa lektioner fram
-            till terminslut ({' '}20 december eller 30 juni beroende på startdatum). Samtidigt skickas uppgifterna till vår webhook
-            så att Make kan hantera utskick.
-          </p>
-        </div>
       </section>
 
       <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -326,14 +319,18 @@ export default function FirstLessonPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
-              Upplägg första tiden
-              <textarea
+              Upplägg
+              <select
                 name="arrangement"
                 value={formData.arrangement}
                 onChange={handleInputChange}
-                rows={4}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                <option value="">Välj upplägg</option>
+                <option value="45-60 min">45-60 min</option>
+                <option value="90 min">90 min</option>
+                <option value="120 min">120 min</option>
+              </select>
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">

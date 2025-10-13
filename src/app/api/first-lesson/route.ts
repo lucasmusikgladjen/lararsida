@@ -220,7 +220,7 @@ export async function POST(request: Request) {
           Klockslag: firstLessonTime,
           Elev: [studentId],
           Lärare: [session.user.teacherId],
-          Genomförd: false,
+          Genomförd: true,
           Inställd: false,
         },
       },
