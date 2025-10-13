@@ -15,7 +15,8 @@ interface TeacherProfile {
     Bankkontonummer: string
     Bank: string
     Personnummer: string
-    Elever: string[]
+    Elev?: string[]
+    Elever?: string[]
     Önskar: string[]
     Grundlön: number
     Lönenpålägg: number
@@ -162,6 +163,9 @@ export default function ProfilPage() {
   const calculateTimlön = () =>
     (profile?.fields.Grundlön || 0) + (profile?.fields.Lönenpålägg || 0)
 
+  const assignedStudentsCount =
+    profile?.fields['Elev']?.length ?? profile?.fields.Elever?.length ?? 0
+
   if (loading)
     return (
       <div className="flex items-center justify-center py-12">
@@ -295,7 +299,7 @@ export default function ProfilPage() {
           </button>
         )}
         <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:text-xl">Personuppgifter</h2>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+        <div className="grid grid-cols-1 gap-5 min-[360px]:grid-cols-2 md:gap-6">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Namn</label>
@@ -513,7 +517,7 @@ export default function ProfilPage() {
           <div className="rounded-lg border border-gray-200 p-4 text-center">
             <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Nuvarande elever</p>
             <p className="mt-1 text-2xl font-bold text-green-600 sm:text-3xl">
-              {profile.fields.Elever?.length || 0}
+              {assignedStudentsCount}
             </p>
           </div>
           {/* Pågående ansökningar */}
@@ -553,14 +557,14 @@ export default function ProfilPage() {
         <div className="mt-6 border-t pt-4">
           <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">Fast månadslön</p>
           <p className="mt-1 text-lg font-semibold text-green-600 sm:text-xl">
-            {calculateTimlön() * 4 * (profile.fields.Elever?.length || 0)} kr/månad
+            {calculateTimlön() * 4 * assignedStudentsCount} kr/månad
           </p>
           <p className="text-xs text-gray-500 sm:text-sm">
-            (Timlön × 4 timmar × {profile.fields.Elever?.length || 0} elever)
+            (Timlön × 4 timmar × {assignedStudentsCount} elever)
           </p>
         </div>
         {editMode &&
-          editForm['Önskat antal elever'] !== (profile.fields.Elever?.length || 0) && (
+          editForm['Önskat antal elever'] !== assignedStudentsCount && (
             <div className="mt-4 border-t pt-4">
               <p className="text-xs uppercase tracking-wide text-gray-500 sm:text-sm">
                 Beräknad månadslön vid önskat antal

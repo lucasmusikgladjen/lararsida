@@ -130,14 +130,14 @@ export default function DashboardLayout({
         {isSidebarOpen && (
           <button
             type="button"
-            className="fixed inset-0 z-30 bg-black/40 transition-opacity md:hidden"
+            className="fixed inset-0 z-[120] bg-black/40 transition-opacity md:hidden"
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Stäng menyn"
           />
         )}
 
         <aside
-          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-40 w-full max-w-xs transform bg-white shadow-xl transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:w-64 md:max-w-none md:translate-x-0 md:shadow-none`}
+          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-xl transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:w-64 md:max-w-none md:translate-x-0 md:shadow-none`}
         >
           <div className="flex h-full flex-col border-r border-gray-200 bg-white md:border-r md:border-gray-200">
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">

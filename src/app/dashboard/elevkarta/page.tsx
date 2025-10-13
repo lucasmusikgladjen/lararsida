@@ -521,10 +521,10 @@ export default function ElevkartaPage() {
 
       {/* Karta */}
       {availableStudents.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="relative z-0 bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Interaktiv karta</h2>
           <div className="h-[500px] rounded-lg overflow-hidden">
-            <MapComponent 
+            <MapComponent
               students={availableStudents}
               onStudentClick={handleStudentClick}
               selectedStudent={selectedStudent}
@@ -608,17 +608,6 @@ export default function ElevkartaPage() {
         </div>
       )}
 
-      {/* Instruktioner */}
-      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">💡 Hur fungerar elevkartan?</h3>
-        <div className="space-y-2 text-blue-800">
-          <p>• <strong>Klicka på en elev</strong> på kartan för att se mer information</p>
-          <p>• <strong>Färgkodade cirklar</strong> visar vilket instrument eleven spelar</p>
-          <p>• <strong>Valda elever</strong> blir större med en vit ring runt sig</p>
-          <p>• <strong>Skriv en kommentar</strong> när du ansöker om en elev för att öka dina chanser</p>
-          <p>• <strong>Administratören</strong> kommer att se din ansökan och kan tilldela dig eleven</p>
-        </div>
-      </div>
     </div>
   )
 }
