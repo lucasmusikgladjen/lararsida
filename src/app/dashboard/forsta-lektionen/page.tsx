@@ -127,6 +127,18 @@ export default function FirstLessonPage() {
       return 'Ange ordinarie veckodag och tid för lektionerna'
     }
 
+    if (!formData.backupTime) {
+      return 'Ange en reservtid'
+    }
+
+    if (!formData.arrangement) {
+      return 'Välj upplägg'
+    }
+
+    if (!formData.termGoal) {
+      return 'Beskriv terminsmålen'
+    }
+
     return null
   }
 
@@ -209,6 +221,7 @@ export default function FirstLessonPage() {
                 name="studentId"
                 value={formData.studentId}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 disabled={loadingStudents || students.length === 0}
               >
@@ -235,6 +248,7 @@ export default function FirstLessonPage() {
                 name="firstLessonDate"
                 value={formData.firstLessonDate}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
@@ -246,6 +260,7 @@ export default function FirstLessonPage() {
                 name="firstLessonTime"
                 value={formData.firstLessonTime}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
@@ -256,6 +271,7 @@ export default function FirstLessonPage() {
                 name="ordinaryWeekday"
                 value={formData.ordinaryWeekday}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">Välj veckodag</option>
@@ -274,6 +290,7 @@ export default function FirstLessonPage() {
                 name="ordinaryTime"
                 value={formData.ordinaryTime}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
@@ -286,6 +303,7 @@ export default function FirstLessonPage() {
                 value={formData.backupTime}
                 onChange={handleInputChange}
                 placeholder="Till exempel fredag 15.30"
+                required
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
@@ -295,6 +313,7 @@ export default function FirstLessonPage() {
                 name="arrangement"
                 value={formData.arrangement}
                 onChange={handleInputChange}
+                required
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">Välj upplägg</option>
@@ -310,6 +329,7 @@ export default function FirstLessonPage() {
                 name="termGoal"
                 value={formData.termGoal}
                 onChange={handleInputChange}
+                required
                 rows={4}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
@@ -317,7 +337,7 @@ export default function FirstLessonPage() {
           </div>
 
           <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
-            Övriga anteckningar
+            Hur kändes första lektionen? Är det något särskilt vi behöver veta?
             <textarea
               name="notes"
               value={formData.notes}
