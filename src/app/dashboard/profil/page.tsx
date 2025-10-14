@@ -713,12 +713,15 @@ export default function ProfilPage() {
             {profile.fields.Avtal?.length ? (
               <div className="space-y-2">
                 {profile.fields.Avtal.map((file, idx) => (
-                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                  <div
+                    key={file.id ?? idx}
+                    className="flex flex-wrap items-center gap-2"
+                  >
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm transition-colors hover:bg-gray-50"
                     >
                       <span>📄</span>
                       <span className="truncate">{file.filename}</span>
@@ -728,9 +731,33 @@ export default function ProfilPage() {
                         type="button"
                         onClick={() => file.id && handleRemoveAttachment('Avtal', file.id, file.filename)}
                         disabled={removingAttachment === file.id || !file.id}
-                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                        <span className="sr-only">Ta bort {file.filename}</span>
+                        {removingAttachment === file.id ? (
+                          <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            />
+                          </svg>
+                        ) : (
+                          <span aria-hidden="true">×</span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -764,12 +791,15 @@ export default function ProfilPage() {
             {profile.fields.Jämkning?.length ? (
               <div className="space-y-2">
                 {profile.fields.Jämkning.map((file, idx) => (
-                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                  <div
+                    key={file.id ?? idx}
+                    className="flex flex-wrap items-center gap-2"
+                  >
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm transition-colors hover:bg-gray-50"
                     >
                       <span>📄</span>
                       <span className="truncate">{file.filename}</span>
@@ -779,9 +809,33 @@ export default function ProfilPage() {
                         type="button"
                         onClick={() => file.id && handleRemoveAttachment('Jämkning', file.id, file.filename)}
                         disabled={removingAttachment === file.id || !file.id}
-                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                        <span className="sr-only">Ta bort {file.filename}</span>
+                        {removingAttachment === file.id ? (
+                          <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            />
+                          </svg>
+                        ) : (
+                          <span aria-hidden="true">×</span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -817,12 +871,15 @@ export default function ProfilPage() {
             {profile.fields.Belastningsregister?.length ? (
               <div className="space-y-2">
                 {profile.fields.Belastningsregister.map((file, idx) => (
-                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                  <div
+                    key={file.id ?? idx}
+                    className="flex flex-wrap items-center gap-2"
+                  >
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-1 items-center rounded-md border border-gray-200 p-2 text-sm hover:bg-gray-50 transition-colors"
+                      className="flex min-w-0 flex-1 items-center rounded-md border border-gray-200 p-2 text-sm transition-colors hover:bg-gray-50"
                     >
                       <span className="mr-2">📄</span>
                       <span className="truncate">{file.filename}</span>
@@ -834,9 +891,33 @@ export default function ProfilPage() {
                           file.id && handleRemoveAttachment('Belastningsregister', file.id, file.filename)
                         }
                         disabled={removingAttachment === file.id || !file.id}
-                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                        <span className="sr-only">Ta bort {file.filename}</span>
+                        {removingAttachment === file.id ? (
+                          <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            />
+                          </svg>
+                        ) : (
+                          <span aria-hidden="true">×</span>
+                        )}
                       </button>
                     )}
                   </div>

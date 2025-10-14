@@ -514,7 +514,7 @@ export default function AllaLektionerPage() {
     },
     {
       key: 'add' as const,
-      label: 'Planera fler lektioner'
+      label: 'Skapa lektion'
     },
     {
       key: 'cancel' as const,
@@ -874,8 +874,8 @@ export default function AllaLektionerPage() {
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
                     <p className="font-medium">Så fungerar det</p>
                     <p className="mt-1">
-                      Som standard skapas endast lektionen på valt datum.
-                      Markera <span className="font-semibold">Upprepa lektion hela terminen</span> för att skapa samma tid varje vecka fram till nästa terminsslut.
+                      Som standard lägger vi bara till en lektion på det datum du har valt.
+                      Vill du att samma lektionstid ska fortsätta resten av terminen? Markera då <span className="font-semibold">Upprepa lektion hela terminen</span> så skapas en lektion varje vecka fram till nästa terminsslut.
                       {formattedAddWeekday && addForm.repeatFullTerm && (
                         <span className="block">Vald veckodag: {formattedAddWeekday}.</span>
                       )}
@@ -901,7 +901,7 @@ export default function AllaLektionerPage() {
                       disabled={addForm.loading}
                       className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-base"
                     >
-                      {addForm.loading ? 'Skapar...' : 'Skapa lektioner'}
+                      {addForm.loading ? 'Skapar...' : 'Skapa lektion'}
                     </button>
                     <button
                       type="button"
