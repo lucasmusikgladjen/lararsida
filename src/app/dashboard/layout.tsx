@@ -35,43 +35,43 @@ export default function DashboardLayout({
   }, [pathname])
 
   const fetchElever = async () => {
-  try {
-    setLoadingElever(true)
+    try {
+      setLoadingElever(true)
 
-    const response = await fetch('/api/students?scope=assigned')
+      const response = await fetch('/api/students?scope=assigned')
 
-    if (!response.ok) {
-      throw new Error('Kunde inte hämta elever')
+      if (!response.ok) {
+        throw new Error('Kunde inte hämta elever')
+      }
+
+      const data = await response.json()
+
+      const myStudents = (data.records || [])
+        .filter((record: any) => {
+          const teacherRecordId = record.fields?.LärareRecordID
+
+          if (Array.isArray(teacherRecordId)) {
+            return teacherRecordId.includes(session?.user?.teacherId)
+          }
+
+          return teacherRecordId === session?.user?.teacherId
+        })
+
+      // Formatera data
+      const formattedStudents = myStudents.map((record: any) => ({
+        id: record.id,
+        namn: record.fields.Namn || 'Okänt namn',
+        Födelseår: record.fields.Födelseår || null,
+        instrument: record.fields.Instrument || 'Okänt instrument',
+      }))
+
+      setElever(formattedStudents)
+    } catch (error) {
+      console.error('Error fetching students:', error)
+    } finally {
+      setLoadingElever(false)
     }
-
-    const data = await response.json()
-
-    const myStudents = (data.records || [])
-      .filter((record: any) => {
-        const teacherRecordId = record.fields?.LärareRecordID
-
-        if (Array.isArray(teacherRecordId)) {
-          return teacherRecordId.includes(session?.user?.teacherId)
-        }
-
-        return teacherRecordId === session?.user?.teacherId
-      })
-
-    // Formatera data
-    const formattedStudents = myStudents.map((record: any) => ({
-      id: record.id,
-      namn: record.fields.Namn || 'Okänt namn',
-      Födelseår: record.fields.Födelseår || null,
-      instrument: record.fields.Instrument || 'Okänt instrument',
-    }))
-    
-    setElever(formattedStudents)
-  } catch (error) {
-    console.error('Error fetching students:', error)
-  } finally {
-    setLoadingElever(false)
   }
-}
 
   if (status === 'loading') {
     return (
@@ -98,14 +98,14 @@ export default function DashboardLayout({
 
   const isActivePage = (path: string) => {
     return pathname === path
-      ? 'bg-blue-100 text-blue-700 shadow-inner'
-      : 'text-gray-600 hover:bg-gray-100'
+      ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500'
+      : 'text-gray-600 hover:bg-gray-50'
   }
 
   return (
-    <div className="min-h-dvh bg-slate-100">
+    <div className="flex min-h-dvh flex-col bg-gray-100 md:flex-row">
       {/* Mobile top bar */}
-      <div className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur md:hidden">
+      <div className="sticky top-0 z-30 border-b border-gray-200 bg-white md:hidden">
         <div className="flex items-center gap-4 px-4 py-3">
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -113,14 +113,14 @@ export default function DashboardLayout({
           >
             ☰ Meny
           </button>
-          <div className="min-w-0 flex-1 px-4">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-gray-900">{session.user?.name || 'Lärare'}</p>
             <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
           </div>
         </div>
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 md:min-h-dvh md:flex-row md:gap-8 md:px-10 md:py-10">
+      <div className="relative flex flex-1 md:min-h-dvh md:flex-row">
         {isSidebarOpen && (
           <button
             type="button"
@@ -131,9 +131,9 @@ export default function DashboardLayout({
         )}
 
         <aside
-          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:w-72 md:max-w-none md:translate-x-0 md:rounded-xl md:border md:border-slate-200`}
+          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:h-auto md:w-64 md:max-w-none md:translate-x-0 md:shadow-none`}
         >
-          <div className="flex h-full flex-col border-r border-gray-200 bg-white md:h-full md:rounded-none md:border-none">
+          <div className="flex h-full flex-col border-r border-gray-200 bg-white">
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">
               <p className="text-sm font-semibold text-gray-900">Navigering</p>
               <button
@@ -158,7 +158,7 @@ export default function DashboardLayout({
             </div>
 
             <nav className="flex-1 overflow-y-auto py-4">
-              <div className="space-y-1 px-4">
+              <div className="space-y-1 px-3">
                 <Link
                   href="/dashboard"
                   className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition ${isActivePage('/dashboard')}`}
@@ -166,7 +166,7 @@ export default function DashboardLayout({
                   📊 <span className="ml-3">Dashboard</span>
                 </Link>
 
-                <div className="rounded-md bg-gray-50/60 p-2">
+                <div className="rounded-md bg-gray-50 p-2">
                   <button
                     onClick={() => setIsEleversOpen(!isEleversOpen)}
                     className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -178,7 +178,7 @@ export default function DashboardLayout({
                   </button>
 
                   {isEleversOpen && (
-                    <div className="mt-2 space-y-1 pl-6">
+                    <div className="ml-6 mt-2 space-y-1">
                       {loadingElever ? (
                         <div className="px-2 py-1 text-xs text-gray-400">Laddar elever…</div>
                       ) : elever.length > 0 ? (
@@ -245,13 +245,9 @@ export default function DashboardLayout({
         </aside>
 
         <div className="flex flex-1 flex-col md:overflow-hidden">
-          <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white">
-            <main className="flex-1 px-4 py-6 sm:px-6 md:overflow-y-auto md:px-10">
-              <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-                {children}
-              </div>
-            </main>
-          </div>
+          <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 md:p-8">
+            {children}
+          </main>
         </div>
       </div>
     </div>
