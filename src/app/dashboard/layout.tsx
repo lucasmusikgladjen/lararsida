@@ -133,7 +133,7 @@ export default function DashboardLayout({
         <aside
           className={`${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:min-h-dvh md:w-72 md:max-w-none md:translate-x-0 md:shadow-none`}
+          } fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:h-auto md:min-h-[max(100%,100dvh)] md:w-72 md:max-w-none md:translate-x-0 md:shadow-none`}
         >
           <div className="flex h-full flex-col border-r border-gray-200 bg-white">
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">
