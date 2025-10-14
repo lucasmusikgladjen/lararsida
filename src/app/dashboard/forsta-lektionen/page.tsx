@@ -256,12 +256,13 @@ export default function FirstLessonPage() {
             <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
               Tid för första lektionen
               <input
-                type="time"
+                type="text"
                 name="firstLessonTime"
                 value={formData.firstLessonTime}
                 onChange={handleInputChange}
+                placeholder="Skriv i formatet 00:00"
                 required
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
 
@@ -286,12 +287,13 @@ export default function FirstLessonPage() {
             <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
               Ordinarie tid
               <input
-                type="time"
+                type="text"
                 name="ordinaryTime"
                 value={formData.ordinaryTime}
                 onChange={handleInputChange}
+                placeholder="Skriv i formatet 00:00"
                 required
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
 
