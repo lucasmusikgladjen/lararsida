@@ -133,34 +133,33 @@ export default function DashboardLayout({
         <aside
           className={`${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-lg transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:h-auto md:min-h-[max(100%,100dvh)] md:w-72 md:max-w-none md:translate-x-0 md:shadow-none`}
+          } fixed inset-y-0 left-0 z-[130] flex h-full w-full max-w-xs flex-col border-r border-gray-200 bg-white shadow-lg transition-transform duration-200 ease-in-out md:static md:z-auto md:min-h-dvh md:w-72 md:max-w-none md:translate-x-0 md:shadow-none`}
         >
-          <div className="flex h-full flex-col border-r border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">
-              <p className="text-sm font-semibold text-gray-900">Navigering</p>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-              >
-                <span className="sr-only">Stäng menyn</span>
-                ✕
-              </button>
-            </div>
+          <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">
+            <p className="text-sm font-semibold text-gray-900">Navigering</p>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <span className="sr-only">Stäng menyn</span>
+              ✕
+            </button>
+          </div>
 
-            <div className="border-b border-gray-200 p-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
-                  {session.user?.name?.[0] || session.user?.email?.[0] || '?'}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-gray-900">{session.user?.name || 'Lärare'}</p>
-                  <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
-                </div>
+          <div className="border-b border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                {session.user?.name?.[0] || session.user?.email?.[0] || '?'}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-gray-900">{session.user?.name || 'Lärare'}</p>
+                <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
               </div>
             </div>
+          </div>
 
-            <nav className="flex-1 overflow-y-auto py-4">
-              <div className="space-y-1 px-3">
+          <nav className="flex-1 overflow-y-auto py-4 md:py-6">
+            <div className="space-y-1 px-3">
                 <Link
                   href="/dashboard"
                   className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition ${isActivePage('/dashboard')}`}
@@ -233,16 +232,15 @@ export default function DashboardLayout({
                   👤 <span className="ml-3">Min profil</span>
                 </Link>
               </div>
-            </nav>
+          </nav>
 
-            <div className="border-t border-gray-200 p-4">
-              <button
-                onClick={handleLogout}
-                className="flex w-full items-center justify-center rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-              >
-                🚪 <span className="ml-3">Logga ut</span>
-              </button>
-            </div>
+          <div className="mt-auto border-t border-gray-200 p-4">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center justify-center rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+            >
+              🚪 <span className="ml-3">Logga ut</span>
+            </button>
           </div>
         </aside>
 
