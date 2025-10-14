@@ -131,9 +131,9 @@ export default function DashboardLayout({
         )}
 
         <aside
-          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white shadow-xl transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:w-72 md:max-w-none md:translate-x-0 md:shadow-none`}
+          className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-[130] w-full max-w-xs transform bg-white transition-transform duration-200 ease-in-out md:static md:z-auto md:flex md:w-72 md:max-w-none md:translate-x-0`}
         >
-          <div className="flex h-full flex-col border-r border-gray-200 bg-white md:h-full md:rounded-3xl md:border md:border-slate-200 md:bg-white/90 md:shadow-lg md:ring-1 md:ring-slate-100 md:backdrop-blur">
+          <div className="flex h-full flex-col border-r border-gray-200 bg-white md:h-full md:rounded-2xl md:border md:border-slate-200 md:shadow-sm">
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 md:hidden">
               <p className="text-sm font-semibold text-gray-900">Navigering</p>
               <button
@@ -245,7 +245,7 @@ export default function DashboardLayout({
         </aside>
 
         <div className="flex flex-1 flex-col md:overflow-hidden">
-          <div className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white/90 shadow-[0_20px_45px_-20px_rgba(15,23,42,0.3)] backdrop-blur">
+          <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
             <main className="flex-1 px-4 py-6 sm:px-6 md:overflow-y-auto md:px-10">
               <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
                 {children}
