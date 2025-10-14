@@ -41,6 +41,7 @@ export default function AllaLektionerPage() {
     firstDate: '',
     time: '',
     arrangement: '',
+    repeatFullTerm: false,
     loading: false
   })
 
@@ -325,7 +326,7 @@ export default function AllaLektionerPage() {
 
   const resetScheduleForms = () => {
     setUpdateForm({ elevId: '', arrangement: '', weekday: '', time: '', loading: false })
-    setAddForm({ elevId: '', firstDate: '', time: '', arrangement: '', loading: false })
+    setAddForm({ elevId: '', firstDate: '', time: '', arrangement: '', repeatFullTerm: false, loading: false })
     setCancelForm({ elevId: '', confirmed: false, loading: false })
   }
 
@@ -371,13 +372,30 @@ export default function AllaLektionerPage() {
       return
     }
 
-    const termEnd = determineTermEndDate(firstDate)
-
     const lessonsPayload: Array<{ fields: Record<string, any> }> = []
 
-    for (let current = new Date(firstDate); current <= termEnd; current.setDate(current.getDate() + 7)) {
+    if (addForm.repeatFullTerm) {
+      const termEnd = determineTermEndDate(firstDate)
+
+      for (let current = new Date(firstDate); current <= termEnd; current.setDate(current.getDate() + 7)) {
+        const fields: Record<string, any> = {
+          Datum: formatDateOnly(current),
+          Klockslag: addForm.time,
+          Elev: [addForm.elevId],
+          Lärare: [teacherId],
+          Genomförd: false,
+          Inställd: false,
+        }
+
+        if (addForm.arrangement) {
+          fields['Upplägg'] = addForm.arrangement
+        }
+
+        lessonsPayload.push({ fields })
+      }
+    } else {
       const fields: Record<string, any> = {
-        Datum: formatDateOnly(current),
+        Datum: formatDateOnly(firstDate),
         Klockslag: addForm.time,
         Elev: [addForm.elevId],
         Lärare: [teacherId],
@@ -420,7 +438,7 @@ export default function AllaLektionerPage() {
 
       await fetchLektioner()
       handleCloseScheduleModal()
-      alert('Lektioner tillagda fram till nästa termin!')
+      alert(addForm.repeatFullTerm ? 'Lektioner tillagda fram till nästa termin!' : 'Lektion tillagd!')
     } catch (error) {
       console.error('Error creating lessons:', error)
       alert('Fel vid skapande av lektioner')
@@ -856,11 +874,25 @@ export default function AllaLektionerPage() {
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
                     <p className="font-medium">Så fungerar det</p>
                     <p className="mt-1">
-                      Vi skapar en lektion varje vecka från valt startdatum fram till nästa terminsslut.
-                      {formattedAddWeekday && (
+                      Som standard skapas endast lektionen på valt datum.
+                      Markera <span className="font-semibold">Upprepa lektion hela terminen</span> för att skapa samma tid varje vecka fram till nästa terminsslut.
+                      {formattedAddWeekday && addForm.repeatFullTerm && (
                         <span className="block">Vald veckodag: {formattedAddWeekday}.</span>
                       )}
                     </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <input
+                      id="repeat-lessons"
+                      type="checkbox"
+                      checked={addForm.repeatFullTerm}
+                      onChange={(event) => setAddForm(prev => ({ ...prev, repeatFullTerm: event.target.checked }))}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="repeat-lessons" className="text-sm font-medium text-gray-700">
+                      Upprepa lektion hela terminen
+                    </label>
                   </div>
 
                   <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
