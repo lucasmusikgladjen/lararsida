@@ -41,6 +41,7 @@ export default function ProfilPage() {
   const [editMode, setEditMode] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploadingFile, setUploadingFile] = useState<string | null>(null)
+  const [removingAttachment, setRemovingAttachment] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const [editForm, setEditForm] = useState({
@@ -225,6 +226,44 @@ export default function ProfilPage() {
     } finally {
       setUploadingFile(null)
       e.target.value = ''
+    }
+  }
+
+  const handleRemoveAttachment = async (field: string, attachmentId: string, fileName: string) => {
+    const confirmed = window.confirm(`Är du säker på att du vill ta bort "${fileName}"?`)
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setRemovingAttachment(attachmentId)
+      setStatusMessage(null)
+
+      const response = await fetch('/api/airtable/attachments', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ field, attachmentId }),
+      })
+
+      const result = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Fel vid borttagning')
+      }
+
+      setStatusMessage({
+        type: 'success',
+        message: `Dokumentet "${fileName}" har tagits bort.`,
+      })
+
+      await fetchProfile()
+    } catch (error) {
+      console.error(error)
+      setStatusMessage({ type: 'error', message: 'Kunde inte ta bort dokumentet.' })
+    } finally {
+      setRemovingAttachment(null)
     }
   }
 
@@ -674,18 +713,27 @@ export default function ProfilPage() {
             {profile.fields.Avtal?.length ? (
               <div className="space-y-2">
                 {profile.fields.Avtal.map((file, idx) => (
-                  <a
-                    key={idx}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    <span>📄</span>
-                    <span className="truncate">
-                      {file.filename}
-                    </span>
-                  </a>
+                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      <span>📄</span>
+                      <span className="truncate">{file.filename}</span>
+                    </a>
+                    {editMode && (
+                      <button
+                        type="button"
+                        onClick={() => file.id && handleRemoveAttachment('Avtal', file.id, file.filename)}
+                        disabled={removingAttachment === file.id || !file.id}
+                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
@@ -716,18 +764,27 @@ export default function ProfilPage() {
             {profile.fields.Jämkning?.length ? (
               <div className="space-y-2">
                 {profile.fields.Jämkning.map((file, idx) => (
-                  <a
-                    key={idx}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    <span>📄</span>
-                    <span className="truncate">
-                      {file.filename}
-                    </span>
-                  </a>
+                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 p-3 text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      <span>📄</span>
+                      <span className="truncate">{file.filename}</span>
+                    </a>
+                    {editMode && (
+                      <button
+                        type="button"
+                        onClick={() => file.id && handleRemoveAttachment('Jämkning', file.id, file.filename)}
+                        disabled={removingAttachment === file.id || !file.id}
+                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
@@ -760,18 +817,29 @@ export default function ProfilPage() {
             {profile.fields.Belastningsregister?.length ? (
               <div className="space-y-2">
                 {profile.fields.Belastningsregister.map((file, idx) => (
-                  <a
-                    key={idx}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="mr-2">📄</span>
-                    <span className="text-sm truncate">
-                      {file.filename}
-                    </span>
-                  </a>
+                  <div key={file.id ?? idx} className="flex items-center gap-2">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-1 items-center rounded-md border border-gray-200 p-2 text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="mr-2">📄</span>
+                      <span className="truncate">{file.filename}</span>
+                    </a>
+                    {editMode && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          file.id && handleRemoveAttachment('Belastningsregister', file.id, file.filename)
+                        }
+                        disabled={removingAttachment === file.id || !file.id}
+                        className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {removingAttachment === file.id ? 'Tar bort…' : 'Ta bort'}
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
