@@ -171,7 +171,6 @@ export default function DashboardPage() {
       updates = {
         'Genomförd': true,
         'Inställd': false,
-        'Status': 'Inställd',
         'Ombokad till': null,
         'Läxa': homework,
         'Lektionsanteckning': notes,
