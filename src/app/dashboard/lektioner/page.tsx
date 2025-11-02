@@ -235,7 +235,6 @@ export default function AllaLektionerPage() {
     } else if (action === 'inställd') {
       updates = {
         'Inställd': true,
-        'Status': 'Inställd',
         'Anledning inställd': data.anledning,
         'Genomförd': false,
         'Ombokad till': null,
