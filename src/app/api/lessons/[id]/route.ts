@@ -17,6 +17,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     const payload = await request.json()
+
+    if (payload?.fields && typeof payload.fields === 'object' && 'Genomförd' in payload.fields) {
+      const isCompleted = Boolean(payload.fields['Genomförd'])
+      payload.fields['Datum genomförd'] = isCompleted ? new Date().toISOString().split('T')[0] : null
+    }
     const record = await airtableRequest(`/Lektioner/${params.id}`, {
       method: 'PATCH',
       body: payload,

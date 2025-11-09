@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { UnauthorizedError, requireTeacherSession } from '@/lib/auth'
 import { airtableRequest } from '@/lib/airtable'
+import { enrichLessonRecords, normalizeLessonArrangement } from '@/lib/lesson-fields'
 
 const WEBHOOK_URL = process.env.FIRST_LESSON_WEBHOOK_URL
 
@@ -183,7 +184,8 @@ export async function POST(request: Request) {
     const ordinaryWeekdayRaw = getTrimmedString(body.ordinaryWeekday)?.toLowerCase() ?? null
     const ordinaryTime = getTrimmedString(body.ordinaryTime)
     const backupTime = getTrimmedString(body.backupTime) ?? ''
-    const arrangement = getTrimmedString(body.arrangement) ?? ''
+    const arrangementValue = getTrimmedString(body.arrangement)
+    const arrangement = arrangementValue ? normalizeLessonArrangement(arrangementValue) : null
     const termGoal = getTrimmedString(body.termGoal) ?? ''
     const notes = getTrimmedString(body.notes) ?? ''
 
@@ -197,6 +199,10 @@ export async function POST(request: Request) {
 
     if (!ordinaryWeekdayRaw || !ordinaryTime) {
       return NextResponse.json({ error: 'Ordinarie veckodag och tid måste anges' }, { status: 400 })
+    }
+
+    if (!arrangement) {
+      return NextResponse.json({ error: 'Ogiltigt upplägg för lektionen' }, { status: 400 })
     }
 
     const firstLessonDate = parseDateOnly(firstLessonDateRaw)
@@ -222,6 +228,7 @@ export async function POST(request: Request) {
           Lärare: [session.user.teacherId],
           Genomförd: true,
           Inställd: false,
+          'Upplägg': arrangement,
         },
       },
     ]
@@ -237,12 +244,18 @@ export async function POST(request: Request) {
           Lärare: [session.user.teacherId],
           Genomförd: false,
           Inställd: false,
+          'Upplägg': arrangement,
         },
       })
 
       nextLessonDate = new Date(nextLessonDate)
       nextLessonDate.setDate(nextLessonDate.getDate() + 7)
     }
+
+    await enrichLessonRecords(lessonsPayload, {
+      teacherId: session.user.teacherId,
+      teacherName: session.user.name,
+    })
 
     const createdRecordIds: string[] = []
 

@@ -7,6 +7,7 @@ import {
   lessonBelongsToTeacher,
   lessonMatchesStudent,
 } from '@/lib/airtable'
+import { enrichLessonRecords } from '@/lib/lesson-fields'
 
 export async function GET(request: Request) {
   try {
@@ -41,8 +42,25 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    await requireTeacherSession()
+    const session = await requireTeacherSession()
     const payload = await request.json()
+
+    if (payload && typeof payload === 'object') {
+      if (Array.isArray(payload.records)) {
+        await enrichLessonRecords(payload.records, {
+          teacherId: session.user.teacherId,
+          teacherName: session.user.name,
+        })
+      } else if (payload.fields && typeof payload.fields === 'object') {
+        const record = { fields: payload.fields }
+        await enrichLessonRecords([record], {
+          teacherId: session.user.teacherId,
+          teacherName: session.user.name,
+        })
+        payload.fields = record.fields
+      }
+    }
+
     const records = await airtableRequest('/Lektioner', {
       method: 'POST',
       body: payload,

@@ -167,6 +167,7 @@ export default function DashboardPage() {
     if (action === 'genomförd') {
       const notes = data.lektionsanteckning || ''
       const homework = data.läxa || ''
+      const today = new Date().toISOString().split('T')[0]
 
       updates = {
         'Genomförd': true,
@@ -175,7 +176,8 @@ export default function DashboardPage() {
         'Läxa': homework,
         'Lektionsanteckning': notes,
         'Anledning ombokning': null,
-        'Anledning inställd': null
+        'Anledning inställd': null,
+        'Datum genomförd': today,
       }
 
       reportPayload = {
@@ -190,7 +192,8 @@ export default function DashboardPage() {
         'Anledning ombokning': data.anledning,
         'Genomförd': false,
         'Inställd': false,
-        'Ombokad till': null // Rensa det gamla fältet
+        'Ombokad till': null, // Rensa det gamla fältet
+        'Datum genomförd': null,
       }
     } else if (action === 'inställd') {
       updates = {
@@ -198,7 +201,8 @@ export default function DashboardPage() {
         'Anledning inställd': data.anledning,
         'Genomförd': false,
         'Ombokad till': null,
-        'Anledning ombokning': null
+        'Anledning ombokning': null,
+        'Datum genomförd': null,
       }
     }
 
