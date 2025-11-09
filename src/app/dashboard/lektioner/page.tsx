@@ -207,6 +207,7 @@ export default function AllaLektionerPage() {
     if (action === 'genomförd') {
       const notes = data.lektionsanteckning || ''
       const homework = data.läxa || ''
+      const today = new Date().toISOString().split('T')[0]
 
       updates = {
         'Genomförd': true,
@@ -215,7 +216,8 @@ export default function AllaLektionerPage() {
         'Läxa': homework,
         'Lektionsanteckning': notes,
         'Anledning ombokning': null,
-        'Anledning inställd': null
+        'Anledning inställd': null,
+        'Datum genomförd': today,
       }
 
       reportPayload = {
@@ -230,7 +232,8 @@ export default function AllaLektionerPage() {
         'Anledning ombokning': data.anledning,
         'Genomförd': false,
         'Inställd': false,
-        'Ombokad till': null // Rensa det gamla fältet
+        'Ombokad till': null, // Rensa det gamla fältet
+        'Datum genomförd': null,
       }
     } else if (action === 'inställd') {
       updates = {
@@ -238,7 +241,8 @@ export default function AllaLektionerPage() {
         'Anledning inställd': data.anledning,
         'Genomförd': false,
         'Ombokad till': null,
-        'Anledning ombokning': null
+        'Anledning ombokning': null,
+        'Datum genomförd': null,
       }
     }
 
@@ -358,6 +362,11 @@ export default function AllaLektionerPage() {
       return
     }
 
+    if (!addForm.arrangement) {
+      alert('Välj upplägg')
+      return
+    }
+
     const teacherId = session?.user?.teacherId
 
     if (!teacherId) {
@@ -385,10 +394,7 @@ export default function AllaLektionerPage() {
           Lärare: [teacherId],
           Genomförd: false,
           Inställd: false,
-        }
-
-        if (addForm.arrangement) {
-          fields['Upplägg'] = addForm.arrangement
+          'Upplägg': addForm.arrangement,
         }
 
         lessonsPayload.push({ fields })
@@ -401,10 +407,7 @@ export default function AllaLektionerPage() {
         Lärare: [teacherId],
         Genomförd: false,
         Inställd: false,
-      }
-
-      if (addForm.arrangement) {
-        fields['Upplägg'] = addForm.arrangement
+        'Upplägg': addForm.arrangement,
       }
 
       lessonsPayload.push({ fields })
