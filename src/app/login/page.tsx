@@ -46,7 +46,7 @@ export default function LoginPage() {
           <div className="mb-8 space-y-2 text-center">
             <p className="text-sm font-medium uppercase tracking-wide text-blue-600">Lärarportal</p>
             <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Logga in</h1>
-            <p className="text-sm text-gray-600">Kom åt ditt schema och dina elever var du än befinner dig.</p>
+            <p className="text-sm text-gray-600">Rapportera dina lektioner och hitta nya elever.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -99,7 +99,7 @@ export default function LoginPage() {
 
           <div className="mt-8 space-y-2 text-center text-sm">
             <a href="/register" className="block font-medium text-green-600 transition hover:text-green-700">
-              Skapa eller ändra lösenord (för befintliga lärare)
+              Ny på Musikglädjen? Skapa konto här
             </a>
           </div>
         </div>
