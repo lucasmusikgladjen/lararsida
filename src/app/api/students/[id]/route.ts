@@ -33,11 +33,18 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const session = await requireTeacherSession()
     const existing = await airtableRequest(`/Elev/${params.id}`)
 
-    if (!studentBelongsToTeacher(existing, session.user.teacherId)) {
+    const payload = await request.json()
+    const isAssignedToTeacher = studentBelongsToTeacher(existing, session.user.teacherId)
+    const isWishOnlyUpdate =
+      payload?.fields &&
+      Object.keys(payload.fields).every((field) => field === 'Önskar')
+
+    // Teachers may update their own students. Other teachers may only update the "Önskar"
+    // field on students they do not own.
+    if (!isAssignedToTeacher && !isWishOnlyUpdate) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const payload = await request.json()
     const record = await airtableRequest(`/Elev/${params.id}`, {
       method: 'PATCH',
       body: payload,
