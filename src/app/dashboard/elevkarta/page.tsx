@@ -415,7 +415,8 @@ export default function ElevkartaPage() {
         },
         body: JSON.stringify({
           fields: {
-            'Önskar': updatedWishes
+            'Önskar': updatedWishes,
+            'ÖnskaKommentar': wishForm.kommentar || ''
           }
         })
       })
