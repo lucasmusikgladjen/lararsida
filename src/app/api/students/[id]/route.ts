@@ -37,7 +37,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const isAssignedToTeacher = studentBelongsToTeacher(existing, session.user.teacherId)
     const isWishOnlyUpdate =
       payload?.fields &&
-      Object.keys(payload.fields).every((field) => field === 'Önskar')
+      Object.keys(payload.fields).every((field) => field === 'Önskar' || field === 'ÖnskaKommentar')
 
     // Teachers may update their own students. Other teachers may only update the "Önskar"
     // field on students they do not own.
