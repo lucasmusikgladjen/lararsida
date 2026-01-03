@@ -46,7 +46,6 @@ export default function ElevkartaPage() {
     loading: false
   })
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null)
-  const [geocodingProgress, setGeocodingProgress] = useState<{ current: number, total: number } | null>(null)
 
   useEffect(() => {
     if (session?.user?.teacherId) {
@@ -66,139 +65,6 @@ export default function ElevkartaPage() {
     
     return lat >= swedenBounds.south && lat <= swedenBounds.north && 
            lng >= swedenBounds.west && lng <= swedenBounds.east
-  }
-
-  // Function to clean and format address for geocoding
-  const formatAddressForGeocoding = (gata: any, gatunummer: any, ort: any): string => {
-    let address = ''
-    
-    // Combine street and number
-    if (gata && typeof gata === 'string') {
-      address = gata.trim()
-      if (gatunummer) {
-        // Remove any postal codes from gatunummer field
-        const cleanGatunummer = gatunummer.toString().replace(/\d{5,}/g, '').trim()
-        if (cleanGatunummer) {
-          address += ` ${cleanGatunummer}`
-        }
-      }
-    } else if (gata) {
-      // If gata is not a string, convert it
-      address = gata.toString().trim()
-      if (gatunummer) {
-        const cleanGatunummer = gatunummer.toString().replace(/\d{5,}/g, '').trim()
-        if (cleanGatunummer) {
-          address += ` ${cleanGatunummer}`
-        }
-      }
-    }
-    
-    // Add city (remove any postal codes)
-    if (ort) {
-      const cleanOrt = ort.toString().trim().replace(/^\d{5}\s*/, '') // Remove postal code from beginning
-      if (address) {
-        address += `, ${cleanOrt}`
-      } else {
-        address = cleanOrt
-      }
-    }
-    
-    return address.trim()
-  }
-
-  // Function to geocode an address using a free geocoding service
-  const geocodeAddress = async (address: string): Promise<{ lat: number, lng: number } | null> => {
-    try {
-      // Using Nominatim (OpenStreetMap's geocoding service) - free and no API key required
-      const query = encodeURIComponent(`${address}, Sweden`)
-      console.log(`Geocoding query: ${query}`)
-      
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&countrycodes=se`)
-      
-      if (!response.ok) {
-        throw new Error(`Geocoding request failed: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat)
-        const lng = parseFloat(data[0].lon)
-        
-        if (isValidSwedishCoordinates(lat, lng)) {
-          console.log(`Successfully geocoded: ${address} -> ${lat}, ${lng}`)
-          return { lat, lng }
-        } else {
-          console.warn('Geocoded coordinates outside Sweden bounds:', { lat, lng, address })
-          return null
-        }
-      } else {
-        console.warn(`No geocoding results for: ${address}`)
-        return null
-      }
-      
-    } catch (error) {
-      console.error('Geocoding error:', error)
-      return null
-    }
-  }
-
-  // Function to update guardian coordinates (since Longitude/Latitude are in the guardian table)
-  const updateGuardianCoordinates = async (guardianId: string, lat: number, lng: number): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/guardians/${guardianId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fields: {
-            'Latitude': lat.toString(),
-            'Longitude': lng.toString()
-          }
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Airtable update error:', errorData)
-        return false
-      }
-
-      return true
-    } catch (error) {
-      console.error('Error updating guardian coordinates:', error)
-      return false
-    }
-  }
-
-  // Function to mark guardian as geocoding failed
-  const markGuardianGeocodingFailed = async (guardianId: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/guardians/${guardianId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fields: {
-            'Latitude': 'fel',
-            'Longitude': 'fel'
-          }
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Airtable update error:', errorData)
-        return false
-      }
-
-      return true
-    } catch (error) {
-      console.error('Error marking geocoding failed:', error)
-      return false
-    }
   }
 
   const fetchAvailableStudents = async () => {
@@ -268,94 +134,12 @@ export default function ElevkartaPage() {
 
       console.log('Potential students found:', potentialStudents.length)
 
-      // Nu behöver vi geocoda de som saknar korrekta koordinater
-      const studentsNeedingGeocoding = potentialStudents.filter((student: any) => {
-        const lat = parseFloat(student.fields.Latitude)
-        const lng = parseFloat(student.fields.Longitude)
-        
-        // Kontrollera om koordinaterna är ogiltiga eller ej svenska
-        const hasValidCoordinates = !isNaN(lat) && !isNaN(lng) && 
-                                   student.fields.Latitude !== 'error' && 
-                                   student.fields.Longitude !== 'error' &&
-                                   student.fields.Latitude !== 'fel' && 
-                                   student.fields.Longitude !== 'fel' &&
-                                   isValidSwedishCoordinates(lat, lng)
-        
-        const hasAddress = student.fields.Gata && student.fields.Ort
-        
-        // Skippa de som har "fel" markering
-        const isFailed = student.fields.Latitude === 'fel' || student.fields.Longitude === 'fel'
-        
-        return !hasValidCoordinates && hasAddress && !isFailed
-      })
-
-      console.log('Students needing geocoding:', studentsNeedingGeocoding.length)
-
-      // Geocoda de som behöver det
-      if (studentsNeedingGeocoding.length > 0) {
-        setGeocodingProgress({ current: 0, total: studentsNeedingGeocoding.length })
-        
-        for (let i = 0; i < studentsNeedingGeocoding.length; i++) {
-          const student = studentsNeedingGeocoding[i]
-          setGeocodingProgress({ current: i + 1, total: studentsNeedingGeocoding.length })
-          
-          // Debug: Log the raw address data
-          console.log(`Student ${student.fields.NummerID} address data:`, {
-            Gata: student.fields.Gata,
-            GataType: typeof student.fields.Gata,
-            Gatunummer: student.fields.Gatunummer,
-            GatunummerType: typeof student.fields.Gatunummer,
-            Ort: student.fields.Ort,
-            OrtType: typeof student.fields.Ort
-          })
-          
-          const address = formatAddressForGeocoding(student.fields.Gata, student.fields.Gatunummer, student.fields.Ort)
-          console.log(`Geocoding ${i + 1}/${studentsNeedingGeocoding.length}: ${student.fields.NummerID} - "${address}"`)
-          
-          // Skip if address is empty or too short
-          if (!address || address.length < 3) {
-            console.warn(`Skipping ${student.fields.NummerID}: Address too short or empty`)
-            continue
-          }
-          
-          const coordinates = await geocodeAddress(address)
-          
-          if (coordinates) {
-            // Uppdatera i Vårdnadshavartabellen
-            const success = await updateGuardianCoordinates(student.guardianId, coordinates.lat, coordinates.lng)
-            if (success) {
-              // Uppdatera lokal data
-              student.fields.Latitude = coordinates.lat
-              student.fields.Longitude = coordinates.lng
-              console.log(`Successfully geocoded ${student.fields.NummerID}`)
-            } else {
-              console.error(`Failed to update coordinates for ${student.fields.NummerID}`)
-            }
-          } else {
-            // Markera som "fel" i Airtable så vi inte försöker igen
-            console.warn(`Failed to geocode ${student.fields.NummerID}: ${address} - marking as failed`)
-            await markGuardianGeocodingFailed(student.guardianId)
-          }
-          
-          // Vänta lite mellan requests för att inte överbelasta geocoding-tjänsten
-          if (i < studentsNeedingGeocoding.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
-          }
-        }
-        
-        setGeocodingProgress(null)
-      }
-
       // Filtrera slutliga elever med giltiga koordinater
       const studentsWithValidCoordinates = potentialStudents.filter((student: any) => {
-        const lat = parseFloat(student.fields.Latitude)
-        const lng = parseFloat(student.fields.Longitude)
-        
-        return !isNaN(lat) && !isNaN(lng) && 
-               student.fields.Latitude !== 'error' && 
-               student.fields.Longitude !== 'error' &&
-               student.fields.Latitude !== 'fel' && 
-               student.fields.Longitude !== 'fel' &&
+        const lat = student.fields.Latitude
+        const lng = student.fields.Longitude
+
+        return typeof lat === 'number' && typeof lng === 'number' && 
                isValidSwedishCoordinates(lat, lng)
       })
       
@@ -450,29 +234,12 @@ export default function ElevkartaPage() {
     }
   }, [statusMessage])
 
-  if (loading || geocodingProgress) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-          {geocodingProgress ? (
-            <div>
-              <span className="text-gray-600">Geocodar adresser...</span>
-              <div className="mt-2">
-                <div className="bg-gray-200 rounded-full h-2 w-64 mx-auto">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(geocodingProgress.current / geocodingProgress.total) * 100}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  {geocodingProgress.current} av {geocodingProgress.total} elever
-                </p>
-              </div>
-            </div>
-          ) : (
-            <span className="text-gray-600">Laddar elevkarta...</span>
-          )}
+          <span className="text-gray-600">Laddar elevkarta...</span>
         </div>
       </div>
     )
