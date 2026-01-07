@@ -510,8 +510,16 @@ export default function ElevPage() {
         ) : (
           <div className="py-5 text-center text-gray-500">
             <span className="text-3xl sm:text-4xl">📅</span>
-            <p className="mt-2">Inga framtida lektioner planerade</p>
-            <p className="text-sm text-gray-400">Kontakta administratören för att boka nästa lektion</p>
+            <p className="mt-2">
+              Inga lektioner planerade,{' '}
+              <a
+                href="/dashboard/lektioner"
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                boka fler här
+              </a>
+              .
+            </p>
           </div>
         )}
       </div>
