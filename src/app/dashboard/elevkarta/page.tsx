@@ -95,21 +95,59 @@ export default function ElevkartaPage() {
         guardiansMap.set(guardian.id, guardian.fields)
       })
       
+      console.log('Total students from API:', allRecords.length)
+      console.log('Total guardians from API:', allGuardians.length)
+
+      // Debug: Visa första eleven för att se vilka fält som finns
+      if (allRecords.length > 0) {
+        console.log('Sample student fields:', Object.keys(allRecords[0].fields))
+        console.log('Sample student data:', allRecords[0].fields)
+      }
+
+      // Debug: Visa första vårdnadshavaren för att se vilka fält som finns
+      if (allGuardians.length > 0) {
+        console.log('Sample guardian fields:', Object.keys(allGuardians[0].fields))
+        console.log('Sample guardian data:', allGuardians[0].fields)
+      }
+
       // Filtrera tillgängliga elever
-      const potentialStudents = allRecords
-        .filter((record: any) => {
-          const isActive = record.fields.Status === 'Aktiv'
-          const hasNoTeacher = !record.fields.LärareRecordID
-          return isActive && hasNoTeacher
-        })
+      const activeStudentsWithoutTeacher = allRecords.filter((record: any) => {
+        const isActive = record.fields.Status === 'Aktiv'
+        const hasNoTeacher = !record.fields.LärareRecordID
+        return isActive && hasNoTeacher
+      })
+
+      console.log('Active students without teacher:', activeStudentsWithoutTeacher.length)
+
+      const potentialStudents = activeStudentsWithoutTeacher
         .map((record: any) => {
           // Lägg till vårdnadshavardata
-          const guardianId = Array.isArray(record.fields.Vårdnadshavare) 
-            ? record.fields.Vårdnadshavare[0] 
+          const guardianId = Array.isArray(record.fields.Vårdnadshavare)
+            ? record.fields.Vårdnadshavare[0]
             : record.fields.Vårdnadshavare
-          
+
           const guardianData = guardiansMap.get(guardianId) || {}
-          
+
+          // Försök hämta koordinater från flera möjliga källor:
+          // 1. Direkt på eleven (lookup-fält)
+          // 2. Från vårdnadshavaren
+          const rawLat = record.fields.Latitude ?? guardianData.Latitude
+          const rawLng = record.fields.Longitude ?? guardianData.Longitude
+
+          // Konvertera till nummer
+          const parsedLat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat)
+          const parsedLng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng)
+
+          // Debug: Visa koordinatdata
+          console.log(`Student ${record.fields.NummerID} coords:`, {
+            studentLat: record.fields.Latitude,
+            studentLng: record.fields.Longitude,
+            guardianLat: guardianData.Latitude,
+            guardianLng: guardianData.Longitude,
+            finalLat: parsedLat,
+            finalLng: parsedLng
+          })
+
           return {
             ...record,
             guardianId: guardianId, // Lägg till guardian ID för senare uppdateringar
@@ -117,26 +155,29 @@ export default function ElevkartaPage() {
               ...record.fields,
               // Använd lookup-fältet först, sedan fallback till direkt hämtning
               Samtalsanteckningar: record.fields.Samtalsanteckningar || guardianData.Samtalsanteckning || '',
-              // Hämta adress direkt från vårdnadshavare (inte lookup fields)
-              Gata: guardianData.Gata,
-              Gatunummer: guardianData.Gatunummer,
-              Ort: guardianData.Ort,
-              // Koordinater kommer från vårdnadshavare - konvertera till nummer
-              Longitude: typeof guardianData.Longitude === 'number'
-                ? guardianData.Longitude
-                : parseFloat(guardianData.Longitude),
-              Latitude: typeof guardianData.Latitude === 'number'
-                ? guardianData.Latitude
-                : parseFloat(guardianData.Latitude),
+              // Hämta adress - försök från eleven först (lookup), sedan vårdnadshavare
+              Gata: record.fields.Gata ?? guardianData.Gata,
+              Gatunummer: record.fields.Gatunummer ?? guardianData.Gatunummer,
+              Ort: record.fields.Ort ?? guardianData.Ort,
+              // Koordinater - redan konverterade till nummer
+              Longitude: parsedLng,
+              Latitude: parsedLat,
             }
           }
         })
         .filter((record: any) => {
           // Endast inkludera elever som har en vårdnadshavare med adressdata
-          return record.guardianId && record.fields.Gata && record.fields.Ort
+          const hasAddress = record.guardianId && record.fields.Gata && record.fields.Ort
+          if (!hasAddress && record.guardianId) {
+            console.log(`Student ${record.fields.NummerID} filtered: missing address`, {
+              Gata: record.fields.Gata,
+              Ort: record.fields.Ort
+            })
+          }
+          return hasAddress
         })
 
-      console.log('Potential students found:', potentialStudents.length)
+      console.log('Students with address data:', potentialStudents.length)
 
       // Filtrera slutliga elever med giltiga koordinater
       const studentsWithValidCoordinates = potentialStudents.filter((student: any) => {
