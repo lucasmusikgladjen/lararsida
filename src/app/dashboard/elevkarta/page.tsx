@@ -94,43 +94,17 @@ export default function ElevkartaPage() {
       allGuardians.forEach(guardian => {
         guardiansMap.set(guardian.id, guardian.fields)
       })
-      
-      console.log('Total students from API:', allRecords.length)
-      console.log('Total guardians from API:', allGuardians.length)
 
-      // Debug: Visa första eleven för att se vilka fält som finns
-      if (allRecords.length > 0) {
-        console.log('Sample student fields:', Object.keys(allRecords[0].fields))
-        console.log('Sample student data:', allRecords[0].fields)
-      }
-
-      // Debug: Visa första vårdnadshavaren för att se vilka fält som finns
-      if (allGuardians.length > 0) {
-        console.log('Sample guardian fields:', Object.keys(allGuardians[0].fields))
-        console.log('Sample guardian data:', allGuardians[0].fields)
-      }
-
-      // Filtrera tillgängliga elever
-      const activeStudentsWithoutTeacher = allRecords.filter((record: any) => {
-        const isLookingForTeacher = record.fields.Status === 'Söker lärare'
-        const hasNoTeacher = !record.fields.LärareRecordID
-        return isLookingForTeacher && hasNoTeacher
-      })
-
-      console.log('Active students without teacher:', activeStudentsWithoutTeacher.length)
-
-      const potentialStudents = activeStudentsWithoutTeacher
+      // Berika elever med vårdnadshavardata och koordinater
+      const studentsWithData = allRecords
         .map((record: any) => {
-          // Lägg till vårdnadshavardata
           const guardianId = Array.isArray(record.fields.Vårdnadshavare)
             ? record.fields.Vårdnadshavare[0]
             : record.fields.Vårdnadshavare
 
           const guardianData = guardiansMap.get(guardianId) || {}
 
-          // Försök hämta koordinater från flera möjliga källor:
-          // 1. Direkt på eleven (lookup-fält)
-          // 2. Från vårdnadshavaren
+          // Hämta koordinater från eleven (lookup-fält) eller vårdnadshavaren
           const rawLat = record.fields.Latitude ?? guardianData.Latitude
           const rawLng = record.fields.Longitude ?? guardianData.Longitude
 
@@ -138,65 +112,37 @@ export default function ElevkartaPage() {
           const parsedLat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat)
           const parsedLng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng)
 
-          // Debug: Visa koordinatdata
-          console.log(`Student ${record.fields.NummerID} coords:`, {
-            studentLat: record.fields.Latitude,
-            studentLng: record.fields.Longitude,
-            guardianLat: guardianData.Latitude,
-            guardianLng: guardianData.Longitude,
-            finalLat: parsedLat,
-            finalLng: parsedLng
-          })
-
           return {
             ...record,
-            guardianId: guardianId, // Lägg till guardian ID för senare uppdateringar
+            guardianId: guardianId,
             fields: {
               ...record.fields,
-              // Använd lookup-fältet först, sedan fallback till direkt hämtning
               Samtalsanteckningar: record.fields.Samtalsanteckningar || guardianData.Samtalsanteckning || '',
-              // Hämta adress - försök från eleven först (lookup), sedan vårdnadshavare
               Gata: record.fields.Gata ?? guardianData.Gata,
               Gatunummer: record.fields.Gatunummer ?? guardianData.Gatunummer,
               Ort: record.fields.Ort ?? guardianData.Ort,
-              // Koordinater - redan konverterade till nummer
               Longitude: parsedLng,
               Latitude: parsedLat,
             }
           }
         })
         .filter((record: any) => {
-          // Endast inkludera elever som har en vårdnadshavare med adressdata
-          const hasAddress = record.guardianId && record.fields.Gata && record.fields.Ort
-          if (!hasAddress && record.guardianId) {
-            console.log(`Student ${record.fields.NummerID} filtered: missing address`, {
-              Gata: record.fields.Gata,
-              Ort: record.fields.Ort
-            })
-          }
-          return hasAddress
+          // Kräv vårdnadshavare med adressdata
+          return record.guardianId && record.fields.Gata && record.fields.Ort
         })
 
-      console.log('Students with address data:', potentialStudents.length)
+      // Filtrera elever med giltiga koordinater inom Sverige
+      const studentsWithValidCoordinates = studentsWithData.filter((student: any) => {
+        const lat = student.fields.Latitude
+        const lng = student.fields.Longitude
 
-      // Filtrera slutliga elever med giltiga koordinater
-      const studentsWithValidCoordinates = potentialStudents.filter((student: any) => {
-        const rawLat = student.fields.Latitude
-        const rawLng = student.fields.Longitude
-
-        // Hantera både nummer och strängar från Airtable
-        const lat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat)
-        const lng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng)
-
-        // Kontrollera att koordinaterna är giltiga nummer och inom Sverige
         if (isNaN(lat) || isNaN(lng)) {
           return false
         }
 
         return isValidSwedishCoordinates(lat, lng)
       })
-      
-      console.log('Students with valid coordinates:', studentsWithValidCoordinates.length)
+
       setAvailableStudents(studentsWithValidCoordinates)
       
     } catch (error) {
@@ -320,8 +266,8 @@ export default function ElevkartaPage() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Elevkarta</h1>
         <p className="text-gray-600 mb-4">
-          Klicka på en elev på kartan för att se mer information och ansöka om att undervisa. 
-          Kartan visar alla aktiva elever som inte har en lärare tilldelad än.
+          Klicka på en elev på kartan för att se mer information och ansöka om att undervisa.
+          Kartan visar alla elever som söker lärare.
         </p>
         <p className="text-sm text-gray-500">
           Tillgängliga elever: <strong>{availableStudents.length}</strong>
