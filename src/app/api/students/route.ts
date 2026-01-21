@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     if (scope === 'assigned') {
       filtered = records.filter((record) => studentBelongsToTeacher(record, session.user.teacherId))
     } else if (scope === 'available') {
-      filtered = records.filter((record) => record.fields?.Status === 'Aktiv' && !record.fields?.LärareRecordID)
+      filtered = records.filter((record) => record.fields?.Status === 'Söker lärare' && !record.fields?.LärareRecordID)
     }
 
     return NextResponse.json({ records: filtered })

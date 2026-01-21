@@ -112,9 +112,9 @@ export default function ElevkartaPage() {
 
       // Filtrera tillgängliga elever
       const activeStudentsWithoutTeacher = allRecords.filter((record: any) => {
-        const isActive = record.fields.Status === 'Aktiv'
+        const isLookingForTeacher = record.fields.Status === 'Söker lärare'
         const hasNoTeacher = !record.fields.LärareRecordID
-        return isActive && hasNoTeacher
+        return isLookingForTeacher && hasNoTeacher
       })
 
       console.log('Active students without teacher:', activeStudentsWithoutTeacher.length)
