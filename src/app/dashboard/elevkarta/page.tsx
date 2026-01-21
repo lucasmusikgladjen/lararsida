@@ -121,9 +121,13 @@ export default function ElevkartaPage() {
               Gata: guardianData.Gata,
               Gatunummer: guardianData.Gatunummer,
               Ort: guardianData.Ort,
-              // Koordinater kommer från vårdnadshavare
-              Longitude: guardianData.Longitude,
-              Latitude: guardianData.Latitude,
+              // Koordinater kommer från vårdnadshavare - konvertera till nummer
+              Longitude: typeof guardianData.Longitude === 'number'
+                ? guardianData.Longitude
+                : parseFloat(guardianData.Longitude),
+              Latitude: typeof guardianData.Latitude === 'number'
+                ? guardianData.Latitude
+                : parseFloat(guardianData.Latitude),
             }
           }
         })
@@ -136,11 +140,19 @@ export default function ElevkartaPage() {
 
       // Filtrera slutliga elever med giltiga koordinater
       const studentsWithValidCoordinates = potentialStudents.filter((student: any) => {
-        const lat = student.fields.Latitude
-        const lng = student.fields.Longitude
+        const rawLat = student.fields.Latitude
+        const rawLng = student.fields.Longitude
 
-        return typeof lat === 'number' && typeof lng === 'number' && 
-               isValidSwedishCoordinates(lat, lng)
+        // Hantera både nummer och strängar från Airtable
+        const lat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat)
+        const lng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng)
+
+        // Kontrollera att koordinaterna är giltiga nummer och inom Sverige
+        if (isNaN(lat) || isNaN(lng)) {
+          return false
+        }
+
+        return isValidSwedishCoordinates(lat, lng)
       })
       
       console.log('Students with valid coordinates:', studentsWithValidCoordinates.length)
