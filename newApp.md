@@ -86,7 +86,6 @@ Lektioner genomförs → Rapport till vårdnadshavare
 
 | Utmaning | Beskrivning |
 |----------|-------------|
-| **Offlinehantering** | Lärare kan vara på platser med dålig uppkoppling |
 | **Kartprestanda** | Elevkartan med många markörer kan vara tung på mobil |
 | **Formulärhantering** | Många formulär (rapportering, ombokning) kräver bra UX på liten skärm |
 | **Pushnotifikationer** | Behov av påminnelser om lektioner och admin-meddelanden |
