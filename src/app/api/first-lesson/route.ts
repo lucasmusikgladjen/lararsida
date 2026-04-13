@@ -4,8 +4,6 @@ import { UnauthorizedError, requireTeacherSession } from '@/lib/auth'
 import { airtableRequest } from '@/lib/airtable'
 import { enrichLessonRecords, normalizeLessonArrangement } from '@/lib/lesson-fields'
 
-const WEBHOOK_URL = process.env.FIRST_LESSON_WEBHOOK_URL
-
 const WEEKDAY_TO_INDEX: Record<string, number> = {
   sunday: 0,
   monday: 1,
@@ -14,16 +12,6 @@ const WEEKDAY_TO_INDEX: Record<string, number> = {
   thursday: 4,
   friday: 5,
   saturday: 6,
-}
-
-const WEEKDAY_LABELS: Record<string, string> = {
-  sunday: 'Söndag',
-  monday: 'Måndag',
-  tuesday: 'Tisdag',
-  wednesday: 'Onsdag',
-  thursday: 'Torsdag',
-  friday: 'Fredag',
-  saturday: 'Lördag',
 }
 
 type RequestBody = {
@@ -155,28 +143,6 @@ function extractRecordIds(response: unknown) {
   return ids
 }
 
-async function deleteCreatedLessons(recordIds: string[]) {
-  if (recordIds.length === 0) {
-    return
-  }
-
-  const batches = chunk(recordIds, 10)
-
-  for (const batch of batches) {
-    const params = new URLSearchParams()
-
-    for (const id of batch) {
-      params.append('records[]', id)
-    }
-
-    try {
-      await airtableRequest(`/Lektioner?${params.toString()}`, { method: 'DELETE' })
-    } catch (error) {
-      console.error('Failed to rollback created lessons', error)
-    }
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const session = await requireTeacherSession()
@@ -187,12 +153,8 @@ export async function POST(request: Request) {
     const firstLessonTime = getTrimmedString(body.firstLessonTime)
     const ordinaryWeekdayRaw = getTrimmedString(body.ordinaryWeekday)?.toLowerCase() ?? null
     const ordinaryTime = getTrimmedString(body.ordinaryTime)
-    const backupTime = getTrimmedString(body.backupTime) ?? ''
     const arrangementValue = getTrimmedString(body.arrangement)
     const arrangement = arrangementValue ? normalizeLessonArrangement(arrangementValue) : null
-    const termGoal = getTrimmedString(body.termGoal) ?? ''
-    const notes = getTrimmedString(body.notes) ?? ''
-
     if (!studentId) {
       return NextResponse.json({ error: 'studentId saknas' }, { status: 400 })
     }
@@ -221,7 +183,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Ogiltig veckodag för ordinarie lektionstid' }, { status: 400 })
     }
 
-    const { date: termEndDate, iso: termEndDateString } = determineTermEndDate(firstLessonDate)
+    const { date: termEndDate } = determineTermEndDate(firstLessonDate)
 
     const lessonsPayload = [
       {
@@ -272,42 +234,6 @@ export async function POST(request: Request) {
       })
 
       createdRecordIds.push(...extractRecordIds(response))
-    }
-
-    if (!WEBHOOK_URL) {
-      throw new Error('FIRST_LESSON_WEBHOOK_URL saknas i konfigurationen')
-    }
-
-    const webhookResponse = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        teacher: {
-          id: session.user.teacherId,
-          name: session.user.name,
-          email: session.user.email,
-        },
-        studentId,
-        firstLessonDate: firstLessonDateRaw,
-        firstLessonTime,
-        ordinaryWeekday: ordinaryWeekdayRaw,
-        ordinaryWeekdayLabel: WEEKDAY_LABELS[ordinaryWeekdayRaw] ?? ordinaryWeekdayRaw,
-        ordinaryTime,
-        backupTime,
-        arrangement,
-        termGoal,
-        notes,
-        lessonsCreated: createdRecordIds.length,
-        termEndDate: termEndDateString,
-      }),
-    })
-
-    if (!webhookResponse.ok) {
-      const errorText = await webhookResponse.text()
-      await deleteCreatedLessons(createdRecordIds)
-      throw new Error(`Webhook svarade med fel: ${webhookResponse.status} ${webhookResponse.statusText} - ${errorText}`)
     }
 
     return NextResponse.json({
