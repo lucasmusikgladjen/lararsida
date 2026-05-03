@@ -143,6 +143,27 @@ function extractRecordIds(response: unknown) {
   return ids
 }
 
+async function markFirstLessonCompleted(studentId: string, teacherId: string) {
+  const formula = `AND(FIND("${studentId}", ARRAYJOIN({Elev})), FIND("${teacherId}", ARRAYJOIN({Lärare})))`
+
+  const data = await airtableRequest(
+    `/Matchningar?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1&fields[]=Elev&fields[]=L%C3%A4rare`,
+  )
+
+  const matchningId = data?.records?.[0]?.id
+
+  if (!matchningId) {
+    throw new Error(
+      'Ingen aktiv matchning hittades för eleven och läraren. Kontakta Musikglädjen.',
+    )
+  }
+
+  await airtableRequest(`/Matchningar/${matchningId}`, {
+    method: 'PATCH',
+    body: { fields: { 'Första lektion genomförd': new Date().toISOString().split('T')[0] } },
+  })
+}
+
 export async function POST(request: Request) {
   try {
     const session = await requireTeacherSession()
@@ -235,6 +256,8 @@ export async function POST(request: Request) {
 
       createdRecordIds.push(...extractRecordIds(response))
     }
+
+    await markFirstLessonCompleted(studentId, session.user.teacherId)
 
     return NextResponse.json({
       success: true,
