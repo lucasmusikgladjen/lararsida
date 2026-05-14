@@ -144,13 +144,33 @@ function extractRecordIds(response: unknown) {
 }
 
 async function markFirstLessonCompleted(studentId: string, teacherId: string) {
-  const formula = `AND(FIND("${studentId}", ARRAYJOIN({Elev})), FIND("${teacherId}", ARRAYJOIN({Lärare})))`
-
-  const data = await airtableRequest(
-    `/Matchningar?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1&fields[]=Elev&fields[]=L%C3%A4rare`,
+  // ARRAYJOIN on linked record fields in Airtable formulas returns the primary
+  // field display values, not record IDs, so searching for rec-prefixed IDs
+  // via filterByFormula never matches. Instead we look up the matchning by
+  // fetching the student’s linked Matchningar records and finding the one that
+  // also references this teacher.
+  const studentRecord = await airtableRequest(
+    `/Elev/${studentId}?fields[]=Matchningar`,
   )
 
-  const matchningId = data?.records?.[0]?.id
+  const matchningIds: string[] = studentRecord?.fields?.Matchningar ?? []
+
+  if (matchningIds.length === 0) {
+    throw new Error(
+      'Ingen aktiv matchning hittades för eleven och läraren. Kontakta Musikglädjen.',
+    )
+  }
+
+  let matchningId: string | null = null
+
+  for (const id of matchningIds) {
+    const matchning = await airtableRequest(`/Matchningar/${id}?fields[]=L%C3%A4rare`)
+    const teachers: string[] = matchning?.fields?.Lärare ?? []
+    if (teachers.includes(teacherId)) {
+      matchningId = id
+      break
+    }
+  }
 
   if (!matchningId) {
     throw new Error(
